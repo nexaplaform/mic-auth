@@ -32,12 +32,17 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'NEXUS_CREDENTIALS', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
                         // Dentro de este bloque, NEXUS_USERNAME y NEXUS_PASSWORD están disponibles como variables de entorno
 
-                        // Ejecuta el build de Maven, usando el settings.xml gestionado
-                        // El -s especifica el archivo settings.xml
-                        // El -Dmaven.test.skip=true es opcional si quieres saltar tests
-                        // El clean package install deploy construye, instala localmente y despliega a Nexus
-                        // Las variables de entorno NEXUS_USERNAME y NEXUS_PASSWORD serán usadas por Maven a través del settings.xml
-                        sh "mvn -s ${JENKINS_HOME}/config/managed-files/nexus-settings.xml clean package deploy"
+                        // Usamos el paso configFile para obtener la ruta al settings.xml gestionado
+                        configFile(fileId: 'nexus-settings', variable: 'MAVEN_SETTINGS_FILE') {
+                            // Dentro de este bloque, MAVEN_SETTINGS_FILE contiene la ruta temporal al settings.xml
+
+                            // Ejecuta el build de Maven, usando la variable que contiene la ruta al settings.xml
+                            // El -s especifica el archivo settings.xml
+                            // El -Dmaven.test.skip=true es opcional si quieres saltar tests
+                            // El clean package install deploy construye, instala localmente y despliega a Nexus
+                            // Las variables de entorno NEXUS_USERNAME y NEXUS_PASSWORD serán usadas por Maven a través del settings.xml
+                            sh "mvn -s ${MAVEN_SETTINGS_FILE} clean package deploy"
+                        }
                     }
                 }
             }
