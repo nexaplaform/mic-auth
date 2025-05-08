@@ -22,30 +22,26 @@ pipeline {
             }
         }
 
-        stage('Build and Deploy to Nexus') { // Renombrado para mayor claridad
-            steps {
-                // Usamos withCredentials para exponer las credenciales como variables de entorno
-                withCredentials([usernamePassword(credentialsId: 'NEXUS_CREDENTIALS', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
-                    // Dentro de este bloque, NEXUS_USERNAME y NEXUS_PASSWORD están disponibles como variables de entorno
+        stage('Build and Deploy to Nexus') {
+                    steps {
+                        // Usamos withCredentials para exponer las credenciales como variables de entorno
+                        withCredentials([usernamePassword(credentialsId: 'NEXUS_CREDENTIALS', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
+                            // Dentro de este bloque, NEXUS_USERNAME y NEXUS_PASSWORD están disponibles como variables de entorno
 
-                    // Usamos el paso configFile para obtener la ruta al settings.xml gestionado
-                    // Ajuste menor en el formato del paso configFile
-                    configFile(
-                        fileId: 'nexus-settings',
-                        variable: 'MAVEN_SETTINGS_FILE'
-                    ) {
-                        // Dentro de este bloque, MAVEN_SETTINGS_FILE contiene la ruta temporal al settings.xml
+                            // ** MODIFICACIÓN AQUÍ **
+                            // Obtenemos la ruta del archivo de configuración gestionado y la guardamos en una variable
+                            // Eliminamos el bloque {} que seguía a configFile anteriormente
+                            def mavenSettingsFile = configFile(fileId: 'nexus-settings')
 
-                        // Ejecuta el build de Maven, usando la variable que contiene la ruta al settings.xml
-                        // El -s especifica el archivo settings.xml
-                        // El -Dmaven.test.skip=true es opcional si quieres saltar tests
-                        // El clean package install deploy construye, instala localmente y despliega a Nexus
-                        // Las variables de entorno NEXUS_USERNAME y NEXUS_PASSWORD serán usadas por Maven a través del settings.xml
-                        sh "mvn -s ${MAVEN_SETTINGS_FILE} clean package deploy"
+                            // Ejecuta el build de Maven, usando la ruta del archivo obtenida
+                            // La ruta está disponible en la propiedad '.path' del objeto devuelto por configFile
+                            // Las variables de entorno NEXUS_USERNAME y NEXUS_PASSWORD (inyectadas por withCredentials)
+                            // serán leídas por el settings.xml gestionado
+                            sh "mvn -s ${mavenSettingsFile.path} clean package deploy"
+                            // ** FIN MODIFICACIÓN **
+                        }
                     }
                 }
-            }
-        }
 
         // Puedes añadir más stages aquí, como:
         // stage('SonarQube Analysis') { ... }
