@@ -29,7 +29,11 @@ pipeline {
                     // Dentro de este bloque, NEXUS_USERNAME y NEXUS_PASSWORD están disponibles como variables de entorno
 
                     // Usamos el paso configFile para obtener la ruta al settings.xml gestionado
-                    configFile(fileId: 'nexus-settings', variable: 'MAVEN_SETTINGS_FILE') {
+                    // Ajuste menor en el formato del paso configFile
+                    configFile(
+                        fileId: 'nexus-settings',
+                        variable: 'MAVEN_SETTINGS_FILE'
+                    ) {
                         // Dentro de este bloque, MAVEN_SETTINGS_FILE contiene la ruta temporal al settings.xml
 
                         // Ejecuta el build de Maven, usando la variable que contiene la ruta al settings.xml
