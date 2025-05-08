@@ -50,16 +50,16 @@ pipeline {
         // stage('Trigger Argo CD Sync') { ... }
     }
 
-    // Opcional: Configurar acciones post-build (notificaciones, limpieza, etc.)
-    // post {
-    //     always {
-    //         echo 'Pipeline finished.'
-    //     }
-    //     success {
-    //         echo 'Build successful!'
-    //     }
-    //     failure {
-    //         echo 'Build failed!'
-    //     }
-    // }
+    Opcional: Configurar acciones post-build (notificaciones, limpieza, etc.)
+    post {
+        always {
+            echo 'Pipeline finished.'
+        }
+        success {
+            echo 'Build successful!'
+        }
+        failure {
+            echo 'Build failed!'
+        }
+    }
 }
