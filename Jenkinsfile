@@ -3,45 +3,47 @@ pipeline {
 
     tools {
         // Asegúrate de que 'Maven' aquí coincide exactamente con el 'Name' en Global Tool Configuration
+        // (Manage Jenkins -> Tools -> Maven Installations)
         maven 'Maven'
     }
 
-    // Eliminamos las asignaciones directas de credenciales aquí
+    // No necesitas declarar las variables de entorno aquí,
+    // withCredentials se encarga de inyectarlas temporalmente
     // environment {
-    //     NEXUS_CREDENTIALS = credentials('nexus-credentials')
-    //     NEXUS_USERNAME = NEXUS_CREDENTIALS.username // Incorrecto aquí
-    //     NEXUS_PASSWORD = NEXUS_CREDENTIALS.password // Incorrecto aquí
+    //     NEXUS_CREDENTIALS = credentials('nexus-credentials') // Esto ya no es necesario así
+    //     NEXUS_USERNAME = NEXUS_CREDENTIALS.username // Esto no es correcto en Declarative
+    //     NEXUS_PASSWORD = NEXUS_CREDENTIALS.password // Esto no es correcto en Declarative
     // }
 
     stages {
         stage('Checkout') {
             steps {
-                // El plugin de Git ya maneja esto si configuraste SCM en la configuración del job
+                // El plugin de Git en la configuración del job ya suele manejar esto.
+                // Si no has configurado el SCM en la configuración del job, descomenta la línea checkout scm
                 echo "Clonando repositorio..."
-                // checkout scm // descomentar si no usas SCM en la configuración del job
+                // checkout scm
             }
         }
 
-        stage('Build and Deploy to Nexus') {
-                    steps {
-                        // Usamos withCredentials para exponer las credenciales como variables de entorno
-                        withCredentials([usernamePassword(credentialsId: 'NEXUS_CREDENTIALS', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
-                            // Dentro de este bloque, NEXUS_USERNAME y NEXUS_PASSWORD están disponibles como variables de entorno
+        stage('Build and Deploy to Nexus') { // Renombrado para mayor claridad
+            steps {
+                // Usamos withCredentials para exponer las credenciales como variables de entorno
+                // El ID 'NEXUS_CREDENTIALS' debe existir en Jenkins Credentials (Username with password)
+                withCredentials([usernamePassword(credentialsId: 'NEXUS_CREDENTIALS', usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
+                    // Dentro de este bloque, NEXUS_USERNAME y NEXUS_PASSWORD están disponibles como variables de entorno
 
-                            // ** MODIFICACIÓN AQUÍ **
-                            // Obtenemos la ruta del archivo de configuración gestionado y la guardamos en una variable
-                            // Eliminamos el bloque {} que seguía a configFile anteriormente
-                            def mavenSettingsFile = configFile(fileId: 'nexus-settings')
+                    // Ejecuta el build de Maven.
+                    // -s ${configFile(fileId: 'nexus-settings').path} le dice a Maven que use el archivo settings.xml gestionado por Jenkins.
+                    // El ID 'nexus-settings' debe existir en Jenkins Config File Management.
+                    // La llamada a configFile() obtiene la ruta temporal del archivo, y .path accede a esa ruta.
+                    // Las variables de entorno NEXUS_USERNAME y NEXUS_PASSWORD (inyectadas por withCredentials) serán leídas por el settings.xml gestionado.
+                    sh "mvn -s ${configFile(fileId: 'nexus-settings').path} clean package deploy"
 
-                            // Ejecuta el build de Maven, usando la ruta del archivo obtenida
-                            // La ruta está disponible en la propiedad '.path' del objeto devuelto por configFile
-                            // Las variables de entorno NEXUS_USERNAME y NEXUS_PASSWORD (inyectadas por withCredentials)
-                            // serán leídas por el settings.xml gestionado
-                            sh "mvn -s ${mavenSettingsFile.path} clean package deploy"
-                            // ** FIN MODIFICACIÓN **
-                        }
-                    }
+                    // El -Dmaven.test.skip=true es opcional si quieres saltar tests:
+                    // sh "mvn -s ${configFile(fileId: 'nexus-settings').path} clean package deploy -Dmaven.test.skip=true"
                 }
+            }
+        }
 
         // Puedes añadir más stages aquí, como:
         // stage('SonarQube Analysis') { ... }
