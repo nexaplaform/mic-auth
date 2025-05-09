@@ -1,19 +1,18 @@
 // Define la pipeline
 pipeline {
     // Configura el agente donde se ejecutará el pipeline.
-    // 'any' significa que se ejecutará en cualquier agente disponible.
-    // Puedes usar 'agent { label 'tu-etiqueta-agente' }' si usas etiquetas.
+    // 'agent any' significa que se ejecutará en cualquier agente disponible.
+    // Puedes usar 'agent { label 'tu-etiqueta-agente' }' si usas etiquetas específicas.
     agent any
 
     // Configura las herramientas necesarias (Maven en este caso).
-    // El nombre 'Maven' debe coincidir con el 'Name' configurado en
+    // El nombre 'Maven' debe coincidir exactamente con el 'Name' configurado en
     // Manage Jenkins -> Tools -> Maven Installations.
     tools {
         maven 'Maven'
     }
 
-    // No necesitas la sección 'environment' para las credenciales aquí,
-    // ya que 'withCredentials' las inyecta temporalmente.
+    // La sección 'environment' no es necesaria para las credenciales inyectadas por 'withCredentials'.
 
     // Define las etapas del pipeline
     stages {
@@ -21,35 +20,37 @@ pipeline {
             steps {
                 // Paso para clonar el repositorio.
                 // Si configuraste el repositorio en la configuración del job de Jenkins
-                // (en la sección 'Pipeline' o 'Source Code Management'), Jenkins ya
-                // se encarga del checkout automáticamente antes de ejecutar el primer stage.
+                // (en 'Source Code Management'), Jenkins ya lo hace automáticamente.
                 echo "Clonando repositorio (si no lo hace Jenkins automáticamente)..."
-                // descomenta la siguiente línea si necesitas hacer el checkout manualmente:
+                // Descomenta la siguiente línea si necesitas hacer el checkout manualmente en el pipeline:
                 // checkout scm
             }
         }
 
-        stage('Build') { // Etapa RENOMBRADA: Solo realiza el build (package)
+        stage('Build') { // Etapa RENOMBRADA: Solo realiza el build (clean package)
             steps {
                 // --- Bloque de Verificación de Java ---
                 echo "========================================="
                 echo "Verificando versión de Java en el agente..."
-                sh "java -version"
+                sh "java -version" // Esto te mostrará la versión de Java del agente
                 echo "========================================="
                 // --- Fin Bloque de Verificación de Java ---
 
+                // Obtiene las credenciales de Nexus de forma segura
                 withCredentials([usernamePassword(
-                    credentialsId: 'NEXUS_CREDENTIALS',
-                    usernameVariable: 'NEXUS_USERNAME',
-                    passwordVariable: 'NEXUS_PASSWORD'
+                    credentialsId: 'NEXUS_CREDENTIALS', // ID de la credencial Username/Password en Jenkins
+                    usernameVariable: 'NEXUS_USERNAME', // Nombre de la variable de entorno para el usuario
+                    passwordVariable: 'NEXUS_PASSWORD'  // Nombre de la variable de entorno para la contraseña
                 )]) {
+                    // Obtiene la ruta al archivo settings.xml gestionado
                     configFileProvider([configFile(
-                        fileId: 'nexus-settings',
-                        variable: 'MAVEN_SETTINGS'
+                        fileId: 'nexus-settings', // ID del archivo Maven settings file en Jenkins Managed Files
+                        variable: 'MAVEN_SETTINGS' // Nombre de la variable de entorno para la ruta del settings.xml
                     )]) {
+                        // Ejecuta el comando Maven
                         sh """
                             echo "Usando settings file temporal: \$MAVEN_SETTINGS"
-                            # Ejecuta solo los goals clean y package para construir el proyecto <-- CORREGIDO: USANDO #
+                            # Ejecuta solo los goals clean y package para construir el proyecto
                             mvn -s \$MAVEN_SETTINGS clean package
                         """
                     }
@@ -63,19 +64,21 @@ pipeline {
                 echo "========================================="
                 echo "Ejecutando análisis SonarQube..."
                 echo "========================================="
-                // Usa 'withSonarQubeEnv' con el NOMBRE de tu configuración de servidor SonarQube en Jenkins.
-                withSonarQubeEnv('SonarQube') { // Asegúrate de que 'SonarQube' coincide con el nombre en Jenkins -> Configure System
-                    // Necesitas el settings.xml también aquí.
+                // Configura las variables de entorno para SonarQube.
+                // 'SonarQube' es el NOMBRE que le diste a la configuración del servidor en Jenkins -> Configure System.
+                withSonarQubeEnv('SonarQube') { // Asegúrate de que 'SonarQube' coincide con el nombre
+                    // Necesitas el settings.xml aquí para que Maven pueda resolver dependencias (como el SonarQube Scanner)
                     configFileProvider([configFile(
                         fileId: 'nexus-settings',
                         variable: 'MAVEN_SETTINGS'
                     )]) {
                          sh """
-                            # Ejecuta el goal 'sonar:sonar' de Maven. <-- CORREGIDO: USANDO #
-                            # Jenkins ya configuró las propiedades de conexión a SonarQube (URL, token) en el entorno. <-- CORREGIDO: USANDO #
-                            # -Dsonar.projectKey es OBLIGATORIO si no lo defines en tu pom.xml o sonar-project.properties. <-- CORREGIDO: USANDO #
+                            echo "Usando settings file temporal: \$MAVEN_SETTINGS"
+                            # Ejecuta el goal 'sonar:sonar'.
+                            # -U fuerza a Maven a revalidar la metadata y los plugins de repos remotos, útil para problemas de caché/resolución.
+                            # -Dsonar.projectKey es OBLIGATORIO si no está en tu pom.xml.
                             # Reemplaza 'mic_auth' con el Project Key que deseas en SonarQube.
-                            mvn -s \$MAVEN_SETTINGS sonar:sonar -Dsonar.projectKey=mic_auth
+                            mvn -s \$MAVEN_SETTINGS -U sonar:sonar -Dsonar.projectKey=mic_auth
                             # Puedes añadir otras propiedades si es necesario con -D, ej: -Dsonar.sources=src/main/java
                          """
                     }
@@ -94,8 +97,9 @@ pipeline {
                 echo "========================================="
                 echo "Verificando Quality Gate en SonarQube..."
                 echo "========================================="
-                // Espera a que SonarQube reporte el estado del Quality Gate.
+                // Espera a que SonarQube finalice el análisis y reporte el estado del Quality Gate.
                 // 'abortPipeline: true' hará que el build de Jenkins falle si el Quality Gate en SonarQube falla.
+                // Esto detiene las etapas posteriores como el deploy si el código no cumple los requisitos.
                 waitForQualityGate abortPipeline: true
                 echo "========================================="
                 echo "Verificación de Quality Gate completada."
@@ -123,8 +127,9 @@ pipeline {
                     )]) {
                          sh """
                             echo "Usando settings file temporal: \$MAVEN_SETTINGS"
-                            # Recuerda que las URLs en la sección distributionManagement de tu pom.xml <-- CORREGIDO: USANDO #
-                            # deben apuntar a la URL interna de Nexus en K8s.
+                            # Ejecuta solo el goal 'deploy'
+                            # Recuerda que las URLs en la sección distributionManagement de tu pom.xml
+                            # deben apuntar a la URL interna correcta de Nexus en K8s.
                             mvn -s \$MAVEN_SETTINGS deploy
                          """
                     }
@@ -144,17 +149,21 @@ pipeline {
 
     // Define acciones a ejecutar después de que todas las etapas terminan
     post {
+        // Se ejecuta siempre al finalizar el pipeline (éxito, fallo o abortado)
         always {
             echo 'Pipeline finalizado.'
+            // Puedes añadir pasos de limpieza aquí si es necesario
         }
-        // El mensaje de éxito ahora refleja que todo el proceso se completó
+        // Se ejecuta solo si el pipeline fue exitoso (todas las etapas pasaron)
         success {
             echo '¡Pipeline (build, análisis, deploy) exitoso!'
         }
-        // El mensaje de fallo indica que algo salió mal en alguna etapa
+        // Se ejecuta solo si alguna etapa del pipeline falló
         failure {
             echo 'Error en alguna etapa del pipeline.'
+            // Puedes añadir notificaciones de fallo aquí
         }
+        // Se ejecuta solo si el pipeline fue abortado por el usuario
         aborted {
             echo 'Pipeline abortado.'
         }
