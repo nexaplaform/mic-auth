@@ -1,18 +1,30 @@
 // Define la pipeline
 pipeline {
     // Configura el agente donde se ejecutará el pipeline.
+    // 'any' significa que se ejecutará en cualquier agente disponible.
+    // Puedes usar 'agent { label 'tu-etiqueta-agente' }' si usas etiquetas.
     agent any
 
     // Configura las herramientas necesarias (Maven en este caso).
+    // El nombre 'Maven' debe coincidir con el 'Name' configurado en
+    // Manage Jenkins -> Tools -> Maven Installations.
     tools {
-        maven 'Maven' // Asegúrate de que este nombre coincide con el configurado en Jenkins -> Tools
+        maven 'Maven'
     }
+
+    // No necesitas la sección 'environment' para las credenciales aquí,
+    // ya que 'withCredentials' las inyecta temporalmente.
 
     // Define las etapas del pipeline
     stages {
         stage('Checkout') {
             steps {
+                // Paso para clonar el repositorio.
+                // Si configuraste el repositorio en la configuración del job de Jenkins
+                // (en la sección 'Pipeline' o 'Source Code Management'), Jenkins ya
+                // se encarga del checkout automáticamente antes de ejecutar el primer stage.
                 echo "Clonando repositorio (si no lo hace Jenkins automáticamente)..."
+                // descomenta la siguiente línea si necesitas hacer el checkout manualmente:
                 // checkout scm
             }
         }
@@ -37,7 +49,7 @@ pipeline {
                     )]) {
                         sh """
                             echo "Usando settings file temporal: \$MAVEN_SETTINGS"
-                            // Ejecuta solo los goals clean y package para construir el proyecto
+                            # Ejecuta solo los goals clean y package para construir el proyecto <-- CORREGIDO: USANDO #
                             mvn -s \$MAVEN_SETTINGS clean package
                         """
                     }
@@ -45,24 +57,26 @@ pipeline {
             }
         }
 
-        // --- Nueva Etapa para Análisis SonarQube ---
+        // --- Etapa para Análisis SonarQube ---
         stage('SonarQube Analysis') {
             steps {
                 echo "========================================="
                 echo "Ejecutando análisis SonarQube..."
                 echo "========================================="
-                withSonarQubeEnv('SonarQube') {
+                // Usa 'withSonarQubeEnv' con el NOMBRE de tu configuración de servidor SonarQube en Jenkins.
+                withSonarQubeEnv('SonarQube') { // Asegúrate de que 'SonarQube' coincide con el nombre en Jenkins -> Configure System
+                    // Necesitas el settings.xml también aquí.
                     configFileProvider([configFile(
                         fileId: 'nexus-settings',
                         variable: 'MAVEN_SETTINGS'
                     )]) {
                          sh """
-                            // Ejecuta el goal 'sonar:sonar' de Maven.
-                            // Jenkins ya configuró las propiedades de conexión a SonarQube (URL, token) en el entorno.
-                            // -Dsonar.projectKey es OBLIGATORIO si no lo defines en tu pom.xml o sonar-project.properties.
+                            # Ejecuta el goal 'sonar:sonar' de Maven. <-- CORREGIDO: USANDO #
+                            # Jenkins ya configuró las propiedades de conexión a SonarQube (URL, token) en el entorno. <-- CORREGIDO: USANDO #
+                            # -Dsonar.projectKey es OBLIGATORIO si no lo defines en tu pom.xml o sonar-project.properties. <-- CORREGIDO: USANDO #
                             # Reemplaza 'mic_auth' con el Project Key que deseas en SonarQube.
                             mvn -s \$MAVEN_SETTINGS sonar:sonar -Dsonar.projectKey=mic_auth
-                            # Puedes añadir otras propiedades si es necesario, ej: -Dsonar.sources=src/main/java
+                            # Puedes añadir otras propiedades si es necesario con -D, ej: -Dsonar.sources=src/main/java
                          """
                     }
                 }
@@ -72,24 +86,26 @@ pipeline {
                 echo "========================================="
             }
         }
-        // --- Fin Nueva Etapa SonarQube ---
+        // --- Fin Etapa SonarQube ---
 
-        // --- Nueva Etapa para verificar Quality Gate (Opcional pero Recomendado) ---
+        // --- Etapa para verificar Quality Gate (Recomendado) ---
         stage('Quality Gate Check') {
             steps {
                 echo "========================================="
                 echo "Verificando Quality Gate en SonarQube..."
                 echo "========================================="
+                // Espera a que SonarQube reporte el estado del Quality Gate.
+                // 'abortPipeline: true' hará que el build de Jenkins falle si el Quality Gate en SonarQube falla.
                 waitForQualityGate abortPipeline: true
                 echo "========================================="
                 echo "Verificación de Quality Gate completada."
                 echo "========================================="
             }
         }
-        // --- Fin Nueva Etapa Quality Gate ---
+        // --- Fin Etapa Quality Gate ---
 
 
-        // --- Nueva Etapa para Deploy a Nexus ---
+        // --- Etapa para Deploy a Nexus ---
         stage('Deploy to Nexus') {
              steps {
                 echo "========================================="
@@ -107,7 +123,7 @@ pipeline {
                     )]) {
                          sh """
                             echo "Usando settings file temporal: \$MAVEN_SETTINGS"
-                            # Recuerda que las URLs en la sección distributionManagement de tu pom.xml
+                            # Recuerda que las URLs en la sección distributionManagement de tu pom.xml <-- CORREGIDO: USANDO #
                             # deben apuntar a la URL interna de Nexus en K8s.
                             mvn -s \$MAVEN_SETTINGS deploy
                          """
