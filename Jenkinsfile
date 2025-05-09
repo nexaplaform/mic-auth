@@ -88,7 +88,7 @@ pipeline {
                 // Espera a que SonarQube finalice el análisis asíncrono y reporte el estado del Quality Gate.
                 // Si el Quality Gate falla, esta etapa marcará el build en Jenkins como UNSTABLE o FAILED,
                 // deteniendo potencialmente las etapas posteriores (como el deploy).
-                waitForQualityGate()
+                waitForQualityGate abortPipeline: true
                 echo "========================================="
                 echo "Verificación de Quality Gate completada."
                 echo "========================================="
