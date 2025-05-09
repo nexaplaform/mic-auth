@@ -1,12 +1,16 @@
 // Define variables para configuración
+// >>> Asegúrate de que estos valores son correctos para tu entorno <<<
 def dockerRegistryUrl = 'nexus.nexaplaform:6001' // <-- HOSTNAME y PUERTO de tu repositorio Docker en Nexus
-def imageName = 'img-mic-auth'         // <-- Cambia esto por el nombre que quieres para tu imagen (ej: my-spring-app)
-def dockerCredentialsId = 'NEXUS_DOCKER_CREDENTIALS' // <-- ID de tus credenciales de tipo Username/Password para Nexus Docker en Jenkins
+def imageName = 'backend-docker'         // <-- Nombre que quieres para tu imagen (ej: backend-docker)
+def dockerCredentialsId = 'NEXUS_DOCKER_CREDENTIALS' // <-- ID de tus credenciales Username/Password para Nexus Docker en Jenkins
 def mavenSettingsFileId = 'nexus-settings' // <-- ID de tu archivo settings.xml en la configuración de Jenkins
-def nexusCredentialsId = 'NEXUS_CREDENTIALS' // <-- ID de tus credenciales de tipo Username/Password para Nexus Maven en Jenkins
+def nexusCredentialsId = 'NEXUS_CREDENTIALS' // <-- ID de tus credenciales Username/Password para Nexus Maven en Jenkins
 
 pipeline {
-    agent any // O un agente específico que tenga Docker instalado (ej: agent { label 'docker-agent' })
+    // Usa una plantilla de Pod con el contenedor 'kaniko' configurado
+    // Asegúrate de que tu Cloud de Kubernetes y Plantilla de Pod están configurados en Jenkins UI
+    // Reemplaza 'your-agent-label' por la etiqueta que le pusiste a tu plantilla de Pod en Jenkins
+    agent { kubernetes { label 'your-agent-label' } }
 
     tools {
         // Asegúrate de que 'Maven' coincide exactamente con el nombre de tu configuración de herramienta Maven en Jenkins
@@ -18,14 +22,14 @@ pipeline {
             steps {
                 echo "Clonando repositorio..."
                 // !!! Importante: Agrega aquí tus pasos reales para clonar el código fuente !!!
-                // Si usas Git, sería algo como:
-                // git url: 'ssh://git@your-scm/your-project.git', branch: 'main' // o tu URL y rama
+                // Ejemplo para Git:
+                // git url: 'ssh://git@your-scm/your-project.git', branch: 'main'
             }
         }
 
         stage('Build and Deploy to Nexus') {
             steps {
-                echo "Construyendo proyecto Maven y desplegando artefacto a Nexus..."
+                echo "Construyendo proyecto Maven y desplegando artefacto a Nexus Maven..."
                 withCredentials([usernamePassword(
                     credentialsId: nexusCredentialsId,
                     usernameVariable: 'NEXUS_USERNAME',
@@ -45,36 +49,56 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
+        stage('Build and Push Docker Image (Kaniko)') {
             steps {
-                echo "Construyendo imagen Docker..."
+                echo "Construyendo y subiendo imagen Docker con Kaniko..."
                 script {
-                    // Construye la imagen Docker usando el Dockerfile que debe estar en la raíz del proyecto.
-                    // Se taggea con el nombre completo del repositorio Docker en Nexus y el número de build de Jenkins como tag.
-                    // El "." al final indica que el contexto de build es el directorio actual del proyecto.
-                    docker.build("${dockerRegistryUrl}/${imageName}:${env.BUILD_NUMBER}", ".")
-                }
-            }
-        }
+                    // 1. Acceder a las credenciales de Nexus Docker configuradas en Jenkins
+                    withCredentials([usernamePassword(
+                        credentialsId: dockerCredentialsId,
+                        usernameVariable: 'NEXUS_DOCKER_USERNAME',
+                        passwordVariable: 'NEXUS_DOCKER_PASSWORD'
+                    )]) {
+                        // 2. Crear el directorio .docker y el archivo config.json en el workspace para que Kaniko lo use
+                        // El workspace del pipeline se monta automáticamente en /workspace dentro del contenedor kaniko
+                        sh "mkdir -p ${WORKSPACE}/.docker"
+                        def dockerConfigJson = """
+                        {
+                            "auths": {
+                                "${dockerRegistryUrl}": {
+                                    "auth": "${("${NEXUS_DOCKER_USERNAME}:${NEXUS_DOCKER_PASSWORD}".bytes.encodeBase64().toString())}"
+                                }
+                            }
+                        }
+                        """
+                        // Escribir el contenido JSON al archivo config.json en el workspace
+                        writeFile file: "${WORKSPACE}/.docker/config.json", text: dockerConfigJson
+                        echo "Archivo .docker/config.json creado en el workspace."
 
-        stage('Push Docker Image to Nexus') {
-            steps {
-                echo "Subiendo imagen Docker a Nexus..."
-                script {
-                    // Autentica contra el repositorio Docker de Nexus usando las credenciales configuradas en Jenkins.
-                    // Luego, sube la imagen previamente construida y taggeada.
-                    // Asegúrate de usar "http://" o "https://" aquí según cómo configuraste el puerto en Nexus.
-                    docker.withRegistry("http://${dockerRegistryUrl}", dockerCredentialsId) {
-                         docker.image("${dockerRegistryUrl}/${imageName}:${env.BUILD_NUMBER}").push()
+                        // 3. Ejecutar Kaniko en su propio contenedor 'kaniko'
+                        // El comando 'sh' se ejecuta dentro del contenedor llamado 'kaniko'
+                        container('kaniko') {
+                            sh """
+                                echo "Ejecutando Kaniko executor desde /kaniko/executor..."
+                                # Ejecuta el comando kaniko/executor con los argumentos necesarios:
+                                # --context: Ruta al contexto del build (workspace montado en /workspace)
+                                # --dockerfile: Ruta al Dockerfile dentro del contexto
+                                # --destination: La URL completa de destino de la imagen en el registro Nexus
+                                # --dockerconfig: Directorio donde Kaniko debe buscar el config.json que creamos
+                                /kaniko/executor \\
+                                    --context=/workspace \\
+                                    --dockerfile=/workspace/Dockerfile \\
+                                    --destination=${dockerRegistryUrl}/${imageName}:${env.BUILD_NUMBER} \\
+                                    --dockerconfig=/workspace/.docker
+                            """
+                        }
                     }
                 }
             }
         }
 
-        // Puedes añadir más stages aquí si los necesitas, por ejemplo:
-        // stage('Run Integration Tests') { ... }
-        // stage('Security Scan') { ... }
-        // stage('Deploy to Environment') { ... } // por ejemplo, a Kubernetes/OpenShift usando la imagen Docker
+        // Puedes añadir más stages aquí si los necesitas
+        // stage('Deploy to Environment') { ... }
     }
 
     post {
@@ -82,12 +106,10 @@ pipeline {
             echo 'Pipeline finalizado.'
         }
         success {
-            echo '✅ ¡Pipeline completado exitosamente! Build Maven, deploy a Nexus Maven y build/push de imagen Docker finalizados.'
+            echo '✅ ¡Pipeline completado exitosamente con Kaniko!'
         }
         failure {
             echo '❌ ¡Pipeline fallido! Revisa los logs para identificar el error.'
-             // Opcional: Notificar por correo, Slack, etc.
         }
-        // Opcional: Añadir 'unstable' o 'aborted' si los necesitas
     }
 }
