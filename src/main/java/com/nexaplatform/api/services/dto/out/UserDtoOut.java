@@ -1,5 +1,6 @@
-package com.nexaplatform.api.dto.out;
+package com.nexaplatform.api.services.dto.out;
 
+import com.nexaplatform.domain.models.UserStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
@@ -14,7 +15,7 @@ public class UserDtoOut {
     private Long id;
 
     @Schema(example = "John")
-    private String fistName;
+    private String firstName;
 
     @Schema(example = "Doe")
     private String lastName;
@@ -27,4 +28,7 @@ public class UserDtoOut {
 
     @Schema(example = "John Doe")
     private String email;
+
+    @Schema(example = "ACTIVE")
+    private UserStatus status;
 }

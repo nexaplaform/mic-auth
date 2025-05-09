@@ -1,7 +1,8 @@
-package com.nexaplatform.api.dto.in;
+package com.nexaplatform.api.services.dto.in;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Data
@@ -11,9 +12,11 @@ import lombok.*;
 @AllArgsConstructor
 public class UserDtoIn {
 
+    @NotNull
     @Schema(example = "John")
-    private String fistName;
+    private String firstName;
 
+    @NotNull
     @Schema(example = "Doe")
     private String lastName;
 

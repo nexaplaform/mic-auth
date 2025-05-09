@@ -2,8 +2,16 @@ databaseChangeLog:
   - changeSet:
       id: 1
       author: Jesus.Finol
-      context: local
+      context: local,develop
       changes:
         - sqlFile:
             path: db.changelog-1.0.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 2
+      author: Jesus.Finol
+      context: local,develop
+      changes:
+        - sqlFile:
+            path: db.changelog-1.1.sql
             relativeToChangelogFile: true

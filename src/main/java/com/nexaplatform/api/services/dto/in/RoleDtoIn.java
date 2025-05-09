@@ -1,4 +1,4 @@
-package com.nexaplatform.api.dto.in;
+package com.nexaplatform.api.services.dto.in;
 
 import lombok.*;
 
@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GroupDtoIn {
+public class RoleDtoIn {
 
     private String name;
 }

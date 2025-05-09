@@ -1,4 +1,4 @@
-package com.nexaplatform.api.controller;
+package com.nexaplatform.api.controllers;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
