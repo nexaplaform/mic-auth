@@ -10,7 +10,7 @@ pipeline {
     // Usa una plantilla de Pod con el contenedor 'kaniko' configurado
     // Asegúrate de que tu Cloud de Kubernetes y Plantilla de Pod están configurados en Jenkins UI
     // Reemplaza 'your-agent-label' por la etiqueta que le pusiste a tu plantilla de Pod en Jenkins
-    agent { kubernetes { label 'your-agent-label' } }
+    agent { kubernetes { label 'jenkins-jenkins-agent' } }
 
     tools {
         // Asegúrate de que 'Maven' coincide exactamente con el nombre de tu configuración de herramienta Maven en Jenkins
