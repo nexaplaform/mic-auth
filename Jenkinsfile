@@ -51,7 +51,7 @@ pipeline {
                         sh """
                             echo "Usando settings file temporal: \$MAVEN_SETTINGS"
                             # Ejecuta solo los goals clean y package para construir el proyecto
-                            mvn -s \$MAVEN_SETTINGS clean package
+                            mvn -s \$MAVEN_SETTINGS -U clean package
                         """
                     }
                 }
