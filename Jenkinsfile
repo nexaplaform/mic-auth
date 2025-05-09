@@ -51,12 +51,7 @@ pipeline {
                 echo "========================================="
                 echo "Ejecutando análisis SonarQube..."
                 echo "========================================="
-
-                // Usa 'withSonarQubeEnv' para configurar las variables de entorno de SonarQube.
-                // 'Mi SonarQube K8s' es el NOMBRE que le diste a la configuración del servidor SonarQube en Jenkins -> Configure System.
                 withSonarQubeEnv('SonarQube') {
-                    // Necesitas el settings.xml también aquí para que Maven pueda descargar dependencias (incluido el SonarQube Scanner for Maven)
-                    // y usar el mirror de Nexus si está configurado para todo.
                     configFileProvider([configFile(
                         fileId: 'nexus-settings',
                         variable: 'MAVEN_SETTINGS'
@@ -85,9 +80,6 @@ pipeline {
                 echo "========================================="
                 echo "Verificando Quality Gate en SonarQube..."
                 echo "========================================="
-                // Espera a que SonarQube finalice el análisis asíncrono y reporte el estado del Quality Gate.
-                // Si el Quality Gate falla, esta etapa marcará el build en Jenkins como UNSTABLE o FAILED,
-                // deteniendo potencialmente las etapas posteriores (como el deploy).
                 waitForQualityGate abortPipeline: true
                 echo "========================================="
                 echo "Verificación de Quality Gate completada."
@@ -98,7 +90,6 @@ pipeline {
 
 
         // --- Nueva Etapa para Deploy a Nexus ---
-        // Esta etapa ejecuta el deploy después de que el build y el análisis (y Quality Gate si se incluyó) han finalizado.
         stage('Deploy to Nexus') {
              steps {
                 echo "========================================="
@@ -107,8 +98,8 @@ pipeline {
                 // Necesitas las credenciales y el settings.xml nuevamente para el deploy.
                  withCredentials([usernamePassword(
                     credentialsId: 'NEXUS_CREDENTIALS',
-                    usernameVariable: 'NEXUS_USERNAME', // Variable de entorno para el usuario
-                    passwordVariable: 'NEXUS_PASSWORD'  // Variable de entorno para la contraseña
+                    usernameVariable: 'NEXUS_USERNAME',
+                    passwordVariable: 'NEXUS_PASSWORD'
                 )]) {
                     configFileProvider([configFile(
                         fileId: 'nexus-settings',
@@ -116,7 +107,6 @@ pipeline {
                     )]) {
                          sh """
                             echo "Usando settings file temporal: \$MAVEN_SETTINGS"
-                            // Ejecuta solo el goal 'deploy'
                             # Recuerda que las URLs en la sección distributionManagement de tu pom.xml
                             # deben apuntar a la URL interna de Nexus en K8s.
                             mvn -s \$MAVEN_SETTINGS deploy
