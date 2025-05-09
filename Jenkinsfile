@@ -47,10 +47,10 @@ pipeline {
                         fileId: 'nexus-settings', // ID del archivo Maven settings file en Jenkins Managed Files
                         variable: 'MAVEN_SETTINGS' // Nombre de la variable de entorno para la ruta del settings.xml
                     )]) {
-                        // Ejecuta el comando Maven
                         sh """
                             echo "Usando settings file temporal: \$MAVEN_SETTINGS"
                             # Ejecuta solo los goals clean y package para construir el proyecto
+                            # -U fuerza revalidación de repos remotos, útil para problemas de caché/resolución.
                             mvn -s \$MAVEN_SETTINGS -U clean package
                         """
                     }
@@ -67,20 +67,27 @@ pipeline {
                 // Configura las variables de entorno para SonarQube.
                 // 'SonarQube' es el NOMBRE que le diste a la configuración del servidor en Jenkins -> Configure System.
                 withSonarQubeEnv('SonarQube') { // Asegúrate de que 'SonarQube' coincide con el nombre
-                    // Necesitas el settings.xml aquí para que Maven pueda resolver dependencias (como el SonarQube Scanner)
-                    configFileProvider([configFile(
-                        fileId: 'nexus-settings',
-                        variable: 'MAVEN_SETTINGS'
+                    // !!! Bloques withCredentials y configFileProvider ahora AQUÍ DENTRO !!!
+                    // Esto asegura que las credenciales y settings.xml están activas dentro del entorno de SonarQube.
+                    withCredentials([usernamePassword(
+                        credentialsId: 'NEXUS_CREDENTIALS', // ID de la credencial en Jenkins
+                        usernameVariable: 'NEXUS_USERNAME', // Variable de entorno para el usuario
+                        passwordVariable: 'NEXUS_PASSWORD'  // Variable de entorno para la contraseña
                     )]) {
-                         sh """
-                            echo "Usando settings file temporal: \$MAVEN_SETTINGS"
-                            # Ejecuta el goal 'sonar:sonar'.
-                            # -U fuerza a Maven a revalidar la metadata y los plugins de repos remotos, útil para problemas de caché/resolución.
-                            # -Dsonar.projectKey es OBLIGATORIO si no está en tu pom.xml.
-                            # Reemplaza 'mic_auth' con el Project Key que deseas en SonarQube.
-                            mvn -s \$MAVEN_SETTINGS -U sonar:sonar -Dsonar.projectKey=mic_auth
-                            # Puedes añadir otras propiedades si es necesario con -D, ej: -Dsonar.sources=src/main/java
-                         """
+                        configFileProvider([configFile(
+                            fileId: 'nexus-settings', // ID del archivo settings.xml en Jenkins
+                            variable: 'MAVEN_SETTINGS' // Variable de entorno para la ruta
+                        )]) {
+                             sh """
+                                echo "Usando settings file temporal: \$MAVEN_SETTINGS"
+                                # Ejecuta el goal 'sonar:sonar' de Maven.
+                                # -U fuerza revalidación.
+                                # -Dsonar.projectKey es OBLIGATORIO si no está en tu pom.xml.
+                                # Reemplaza 'mic_auth' con el Project Key que deseas en SonarQube.
+                                mvn -s \$MAVEN_SETTINGS -U sonar:sonar -Dsonar.projectKey=mic_auth
+                                # Puedes añadir otras propiedades si es necesario con -D, ej: -Dsonar.sources=src/main/java
+                             """
+                        }
                     }
                 }
                 echo "========================================="
