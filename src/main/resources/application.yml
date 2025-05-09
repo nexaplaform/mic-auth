@@ -3,4 +3,4 @@ spring:
     name: mic-auth
 
 server:
-  port: 60001
+  port: 8080
