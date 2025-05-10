@@ -1,4 +1,4 @@
-package com.nexaplatform.api.services.dto.in;
+package com.nexaplatform.api.controllers.services.dto.in;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,10 +20,10 @@ public class UserDtoIn {
     @Schema(example = "Doe")
     private String lastName;
 
-    @Schema(example = "5 5555 5555")
+    @Schema(example = "5-5555-5555")
     private String phoneNumber;
 
-    @Schema(example = "John Doe")
+    @Schema(example = "JohnDoe@example.com")
     private String email;
 
     @Schema(example = "123456789")

@@ -1,7 +1,8 @@
-package com.nexaplatform.api.services;
+package com.nexaplatform.api.controllers.services;
 
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ public interface BaseApi<I, O, K> {
             summary = "Create record",
             description = "Creation of record"
     )
-    default ResponseEntity<O> create(@RequestBody I dto) {
+    default ResponseEntity<O> create(@Valid @RequestBody I dto) {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 
@@ -38,7 +39,7 @@ public interface BaseApi<I, O, K> {
             summary = "Get record by id",
             description = "Search a record by id"
     )
-    default ResponseEntity<O> getById(@PathVariable(value = "1") K id) {
+    default ResponseEntity<O> getById(@PathVariable K id) {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 
@@ -48,7 +49,8 @@ public interface BaseApi<I, O, K> {
             description = "Update a record by id"
     )
     default ResponseEntity<O> update(
-            @PathVariable(value = "1") K id,
+            @Valid
+            @PathVariable K id,
             @RequestBody I user) {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
@@ -58,7 +60,7 @@ public interface BaseApi<I, O, K> {
             summary = "Delete record",
             description = "Delete a record by id"
     )
-    default ResponseEntity<Void> delete(@PathVariable(value = "1") K id) {
+    default ResponseEntity<Void> delete(@PathVariable K id) {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 }

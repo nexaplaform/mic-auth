@@ -17,9 +17,7 @@ public class User {
     private String password;
     private UserStatus status;
 
-    public User () {
-        if(!status.equals(UserStatus.PENDING) && !status.equals(UserStatus.INACTIVE)){
-            this.status = UserStatus.ACTIVE;
-        }
+    public void setInitialStatus() {
+        this.status = UserStatus.ACTIVE;
     }
 }

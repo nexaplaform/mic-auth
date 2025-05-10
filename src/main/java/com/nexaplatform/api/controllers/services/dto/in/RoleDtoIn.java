@@ -1,4 +1,4 @@
-package com.nexaplatform.api.services.dto.in;
+package com.nexaplatform.api.controllers.services.dto.in;
 
 import lombok.*;
 

@@ -1,9 +1,9 @@
 package com.nexaplatform.api.controllers;
 
-import com.nexaplatform.api.services.dto.in.UserDtoIn;
-import com.nexaplatform.api.services.dto.out.UserDtoOut;
-import com.nexaplatform.api.services.BaseApi;
-import com.nexaplatform.api.services.mappers.UserDtoMapper;
+import com.nexaplatform.api.controllers.services.BaseApi;
+import com.nexaplatform.api.controllers.services.dto.in.UserDtoIn;
+import com.nexaplatform.api.controllers.services.dto.out.UserDtoOut;
+import com.nexaplatform.api.controllers.services.mappers.UserDtoMapper;
 import com.nexaplatform.application.UserUseCase;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -30,22 +30,27 @@ public class UserController implements BaseApi<UserDtoIn, UserDtoOut, Long> {
     }
 
     @Override
-    public ResponseEntity<List<UserDtoOut>> getPaginated(Integer page, Integer size, Sort.Direction sort) {
-        return new ResponseEntity<>(mapper.toDtoList(userUseCase.getPaginated(page, size, sort)), HttpStatus.OK);
+    public ResponseEntity<List<UserDtoOut>> getPaginated(
+            Integer page, Integer size, Sort.Direction sort) {
+        return new ResponseEntity<>(mapper.toDtoList(
+                userUseCase.getPaginated(page, size, sort)), HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<UserDtoOut> getById(Long id) {
-        return BaseApi.super.getById(id);
+        return new ResponseEntity<>(mapper.toDto(
+                userUseCase.getById(id)), HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<UserDtoOut> update(Long id, UserDtoIn user) {
-        return BaseApi.super.update(id, user);
+        return new ResponseEntity<>(mapper.toDto(
+                userUseCase.update(id, mapper.toDomain(user))), HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<Void> delete(Long id) {
-        return BaseApi.super.delete(id);
+        userUseCase.delete(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

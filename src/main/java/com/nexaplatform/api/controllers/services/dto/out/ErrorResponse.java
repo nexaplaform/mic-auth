@@ -1,4 +1,4 @@
-package com.nexaplatform.api.services.dto.out;
+package com.nexaplatform.api.controllers.services.dto.out;
 
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;

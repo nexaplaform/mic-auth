@@ -1,7 +1,7 @@
-package com.nexaplatform.api.services.mappers;
+package com.nexaplatform.api.controllers.services.mappers;
 
-import com.nexaplatform.api.services.dto.in.UserDtoIn;
-import com.nexaplatform.api.services.dto.out.UserDtoOut;
+import com.nexaplatform.api.controllers.services.dto.in.UserDtoIn;
+import com.nexaplatform.api.controllers.services.dto.out.UserDtoOut;
 import com.nexaplatform.domain.models.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -24,7 +24,11 @@ public interface UserDtoMapper {
         if (user == null) {
             return null;
         }
-        return user.getFirstName().concat(" ").concat(user.getLastName());
+
+        String firstName = user.getFirstName() == null ? null : user.getFirstName();
+        String lastName = user.getLastName() == null ? null : user.getLastName();
+
+        return firstName + " " + lastName;
     }
 
     @Mapping(target = "firstName", source = "firstName")
