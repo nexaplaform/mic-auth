@@ -7,14 +7,14 @@ import java.util.List;
 public class ResourceAlreadyExistsException extends BaseException {
 
     public ResourceAlreadyExistsException(String message) {
-        super("CONFLICT-001", message, new ArrayList<>(), ZonedDateTime.now());
+        super("CT001", message, new ArrayList<>(), ZonedDateTime.now());
     }
-    
+
     public ResourceAlreadyExistsException(String resourceName, String conflictingValue) {
         super(
-                "CONFLICT-001",
-                resourceName + " with value '" + conflictingValue + "' already exists.",
-                List.of("The provided value for " + resourceName + " is not unique."),
+                "CT001",
+                resourceName + " con valor '" + conflictingValue + "' ya existe.",
+                List.of("El valor proporcionado para " + resourceName + " no es único."),
                 ZonedDateTime.now()
         );
     }

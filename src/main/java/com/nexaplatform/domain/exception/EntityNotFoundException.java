@@ -4,13 +4,13 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BusinessRuleViolationException extends BaseException {
+public class EntityNotFoundException extends BaseException {
 
-    public BusinessRuleViolationException(String code, String message) {
+    public EntityNotFoundException(String code, String message) {
         super(code, message, new ArrayList<>(), ZonedDateTime.now());
     }
 
-    public BusinessRuleViolationException(String code, String message, List<String> violations) {
+    public EntityNotFoundException(String code, String message, List<String> violations) {
         super(code, message, violations, ZonedDateTime.now());
     }
 }

@@ -2,9 +2,10 @@ package com.nexaplatform.api;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.nexaplatform.api.controllers.services.dto.out.ErrorResponse;
 import com.nexaplatform.domain.exception.BusinessRuleViolationException;
-import com.nexaplatform.domain.exception.EntityNotFound;
+import com.nexaplatform.domain.exception.EntityNotFoundException;
 import com.nexaplatform.domain.exception.OperationNotAllowedException;
 import com.nexaplatform.domain.exception.ResourceAlreadyExistsException;
 import jakarta.annotation.Nullable;
@@ -26,29 +27,61 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.nexaplatform.domain.exception.CodeError.*;
+
 @Log4j2
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
+    public static final String URI = "uri=";
+    public static final String ENDPOINT_URL = "Url:";
+    private static final String LOG_REQUEST_DESCRIPTION_PLACEHOLDER = " %s";
+    private static final String LOG_EXCEPTION_MESSAGE_PLACEHOLDER = "{}";
+    private static final String LOG_MESSAGE_FORMAT = "{} ocurrio para la solicitud " + LOG_REQUEST_DESCRIPTION_PLACEHOLDER + ": " + LOG_EXCEPTION_MESSAGE_PLACEHOLDER;
+    private static final String DETAIL_ENDPOINT_FORMAT = ENDPOINT_URL + " " + LOG_REQUEST_DESCRIPTION_PLACEHOLDER;
+    private static final String DETAIL_PROPERTY_VALIDATION_FORMAT = "La propiedad '%s' %s o el tipo de dato es incorrecto, se recomienda mirar la documentación.";
+    private static final String DETAIL_OBJECT_VALIDATION_FORMAT = "Object Error: %s - %s";
+    private static final String DETAIL_METHOD_NOT_SUPPORTED_FORMAT = "Metodo '%s' no soportado para este endpoint";
+    private static final String DETAIL_SUPPORTED_METHODS_FORMAT = "Metodos soportados: %s";
+    private static final String DETAIL_JSON_PARSE_LOCATION_FORMAT = "Ubicacion: linea %d, columna %d";
+    private static final String DETAIL_CAUSE_FORMAT = "Cause: %s - %s";
+    private static final String DETAIL_REQUEST_PATH_FORMAT = "Request path: %s";
+    private static final String DETAIL_TYPE_MISMATCH_FORMAT = "El parámetro '%s' con valor '%s' no se pudo convertir al tipo requerido '%s'";
+    private static final String DETAIL_MISSING_PARAMETER_FORMAT = "Falta el parámetro de solicitud requerido '%s' del tipo '%s'";
+    private static final String DETAIL_JSON_MAPPING_PROBLEM_DETAIL_FORMAT = "Details: %s";
+    private static final String DETAIL_JSON_MAPPING_FIELD_PATH_FORMAT = "Problematic field path: %s";
+    private static final String DETAIL_JSON_MAPPING_EXPECTED_TYPE_FORMAT = "Expected type: %s";
+
+    private static final String ERROR_MESSAGE_ENTITY_NOT_FOUND = "Entidad no encontrada";
+    private static final String ERROR_MESSAGE_RESOURCE_ALREADY_EXISTS = "El recurso ya existe";
+    private static final String ERROR_MESSAGE_OPERATION_NOT_ALLOWED = "Operación no permitida";
+    private static final String ERROR_MESSAGE_BUSINESS_RULE_VIOLATION = "Violación de regla de negocio";
+    private static final String ERROR_MESSAGE_METHOD_NOT_SUPPORTED = "Método HTTP no soportado";
+    private static final String ERROR_MESSAGE_VALIDATION_FAILED = "Validación de petición fallida";
+    private static final String ERROR_MESSAGE_MESSAGE_NOT_READABLE = "El cuerpo de la solicitud no es legible";
+    private static final String ERROR_MESSAGE_JSON_MAPPING_ERROR = "Error procesando el cuerpo de la solicitud";
+    private static final String ERROR_MESSAGE_JSON_PARSE_ERROR = "JSON malformado en el cuerpo de la solicitud";
+    private static final String ERROR_MESSAGE_TYPE_MISMATCH = "El tipo de parámetro de solicitud no coincide";
+    private static final String ERROR_MESSAGE_MISSING_PARAMETER = "Falta el parámetro de solicitud requerido";
+    private static final String ERROR_MESSAGE_INTERNAL_ERROR = "Ha ocurrido un error inesperado, revise el log para obtener mas detalles sobre el error";
+
+
     /**
-     * Maneja excepciones de tipo EntityNotFound.
-     * Loguea la excepcion y retorna un 404 Not Found con los detalles de la BaseException en el formato ErrorResponse.
+     * Handles EntityNotFoundException.
+     * Logs the exception and returns a 404 Not Found with BaseException details in ErrorResponse format.
      */
-    @ExceptionHandler(EntityNotFound.class)
-    public ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFound ex, WebRequest request) {
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest request) {
 
-        log.warn("EntityNotFoundException occurred for request {}: {}",
-                request.getDescription(true).replace("uri=", ""),
-                ex.getMessage());
+        logDetail(ex.getClass().getSimpleName(), request, ex.getMessage());
 
-        List<String> combinedDetails = ex.getDetails() != null ? new java.util.ArrayList<>(ex.getDetails()) : new java.util.ArrayList<>();
-        combinedDetails.add("Resource path: " + request.getDescription(false).replace("uri=", ""));
-        List<String> finalDetails = combinedDetails.isEmpty() ? new ArrayList<>() : combinedDetails;
+        List<String> combinedDetails = ex.getDetails() != null ? new ArrayList<>(ex.getDetails()) : new ArrayList<>();
+        combinedDetails.add(String.format(DETAIL_ENDPOINT_FORMAT, request.getDescription(false).replace(URI, "")));
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .code(ex.getCode())
-                .message(ex.getMessage())
-                .details(finalDetails)
+                .code(ex.getCode() != null ? ex.getCode() : ERROR_CODE_NOT_FOUND)
+                .message(ex.getMessage() != null ? ex.getMessage() : ERROR_MESSAGE_ENTITY_NOT_FOUND)
+                .details(combinedDetails)
                 .timeStamp(ex.getTimeStamp() != null ? ex.getTimeStamp() : ZonedDateTime.now())
                 .build();
 
@@ -56,29 +89,42 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Maneja excepciones de tipo ResourceAlreadyExistsException.
-     * Loguea la excepcion y retorna un 409 Conflict con los detalles de la BaseException en el formato ErrorResponse.
+     * Handles ResourceAlreadyExistsException.
+     * Logs the exception and returns a 409 Conflict with BaseException details in ErrorResponse format.
      */
     @ExceptionHandler(ResourceAlreadyExistsException.class)
     public ResponseEntity<ErrorResponse> handleResourceAlreadyExistsException(ResourceAlreadyExistsException ex, WebRequest request) {
+
+        logDetail(ex.getClass().getSimpleName(), request, ex.getMessage());
+
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .code(ex.getCode())
-                .message(ex.getMessage())
+                .code(ex.getCode() != null ? ex.getCode() : ERROR_CODE_RESOURCE_ALREADY_EXISTS)
+                .message(ex.getMessage() != null ? ex.getMessage() : ERROR_MESSAGE_RESOURCE_ALREADY_EXISTS)
                 .details(ex.getDetails())
                 .timeStamp(ex.getTimeStamp() != null ? ex.getTimeStamp() : ZonedDateTime.now())
                 .build();
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
+    private static void logDetail(String ex, WebRequest request, String ex1) {
+        log.warn(LOG_MESSAGE_FORMAT,
+                ex,
+                request.getDescription(true).replace(URI, ""),
+                ex1);
+    }
+
     /**
-     * Maneja excepciones de tipo OperationNotAllowedException.
-     * Loguea la excepcion y retorna un 400 Bad Request (o 409 Conflict segun la regla especifica) con los detalles de la BaseException en el formato ErrorResponse.
+     * Handles OperationNotAllowedException.
+     * Logs the exception and returns a 400 Bad Request (or 409 Conflict based on specific rule) with BaseException details in ErrorResponse format.
      */
     @ExceptionHandler(OperationNotAllowedException.class)
     public ResponseEntity<ErrorResponse> handleOperationNotAllowedException(OperationNotAllowedException ex, WebRequest request) {
+
+        logDetail(ex.getClass().getSimpleName(), request, ex.getMessage());
+
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .code(ex.getCode())
-                .message(ex.getMessage())
+                .code(ex.getCode() != null ? ex.getCode() : ERROR_CODE_OPERATION_NOT_ALLOWED)
+                .message(ex.getMessage() != null ? ex.getMessage() : ERROR_MESSAGE_OPERATION_NOT_ALLOWED)
                 .details(ex.getDetails())
                 .timeStamp(ex.getTimeStamp() != null ? ex.getTimeStamp() : ZonedDateTime.now())
                 .build();
@@ -87,14 +133,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Maneja excepciones de tipo BusinessRuleViolationException.
-     * Loguea la excepcion y retorna un 400 Bad Request con los detalles de la BaseException en el formato ErrorResponse.
+     * Handles BusinessRuleViolationException.
+     * Logs the exception and returns a 400 Bad Request with BaseException details in ErrorResponse format.
      */
     @ExceptionHandler(BusinessRuleViolationException.class)
     public ResponseEntity<ErrorResponse> handleBusinessRuleViolationException(BusinessRuleViolationException ex, WebRequest request) {
+
+        logDetail(ex.getClass().getSimpleName(), request, ex.getMessage());
+
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .code(ex.getCode())
-                .message(ex.getMessage())
+                .code(ex.getCode() != null ? ex.getCode() : ERROR_CODE_BUSINESS_RULE_VIOLATION)
+                .message(ex.getMessage() != null ? ex.getMessage() : ERROR_MESSAGE_BUSINESS_RULE_VIOLATION)
                 .details(ex.getDetails())
                 .timeStamp(ex.getTimeStamp() != null ? ex.getTimeStamp() : ZonedDateTime.now())
                 .build();
@@ -102,8 +151,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Sobrescribe el manejo de HTTPRequestMethodNotSupportedException (405 Method Not Allowed).
-     * Retorna un ErrorResponse con detalles sobre el método no soportado y los métodos permitidos.
+     * Overrides the handling of HttpRequestMethodNotSupportedException (405 Method Not Allowed).
+     * Returns an ErrorResponse with details about the unsupported method and allowed methods.
      */
     @Override
     @Nullable
@@ -113,18 +162,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpStatus httpStatus = HttpStatus.valueOf(status.value());
 
         List<String> details = new java.util.ArrayList<>();
-        details.add("Metodo '" + ex.getMethod() + "' no soportado para este endpoint");
+        details.add(String.format(DETAIL_METHOD_NOT_SUPPORTED_FORMAT, ex.getMethod()));
 
         Set<HttpMethod> supportedMethods = ex.getSupportedHttpMethods();
         if (supportedMethods != null && !supportedMethods.isEmpty()) {
-            details.add("Metodos soportados: " + supportedMethods);
+            details.add(String.format(DETAIL_SUPPORTED_METHODS_FORMAT, supportedMethods));
         }
 
-        details.add("Url: " + request.getDescription(false).replace("uri=", ""));
+        details.add(String.format(DETAIL_ENDPOINT_FORMAT, request.getDescription(false).replace(URI, "")));
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .code("MNA001")
-                .message("Metodo HTTP no soportado")
+                .code(ERROR_CODE_METHOD_NOT_ALLOWED)
+                .message(ERROR_MESSAGE_METHOD_NOT_SUPPORTED)
                 .details(details)
                 .timeStamp(ZonedDateTime.now())
                 .build();
@@ -132,27 +181,27 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Sobrescribe el manejo de MethodArgumentNotValidException (400 Bad Request por validacion).
-     * Retorna un ErrorResponse con detalles de los errores de validacion de los campos.
+     * Overrides the handling of MethodArgumentNotValidException (400 Bad Request due to validation).
+     * Returns an ErrorResponse with details of field validation errors.
      */
     @Override
     @Nullable
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 
-        HttpStatus httpStatus = HttpStatus.valueOf(status.value()); // Convierte HttpStatusCode a HttpStatus
+        HttpStatus httpStatus = HttpStatus.valueOf(status.value());
 
         List<String> validationErrors = ex.getBindingResult().getFieldErrors().stream()
-                .map(error -> "La propiedad '" + error.getField() + "' " + error.getDefaultMessage())
+                .map(error -> String.format(DETAIL_PROPERTY_VALIDATION_FORMAT, error.getField(), error.getDefaultMessage()))
                 .collect(Collectors.toList());
 
         ex.getBindingResult().getGlobalErrors().forEach(error ->
-                validationErrors.add("Object Error: " + error.getObjectName() + " - " + error.getDefaultMessage())
+                validationErrors.add(String.format(DETAIL_OBJECT_VALIDATION_FORMAT, error.getObjectName(), error.getDefaultMessage()))
         );
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .code("BR001")
-                .message("Validación de petición")
+                .code(ERROR_CODE_ARGUMENT_NOT_VALID)
+                .message(ERROR_MESSAGE_VALIDATION_FAILED)
                 .details(validationErrors)
                 .timeStamp(ZonedDateTime.now())
                 .build();
@@ -161,9 +210,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Sobrescribe el manejo de HttpMessageNotReadableException (400 Bad Request por problemas en el cuerpo de la peticion).
-     * Esto ocurre durante la deserializacion (JSON mal formado, campo requerido ausente, tipo incorrecto).
-     * Retorna un ErrorResponse con detalles sobre el error de lectura del mensaje.
+     * Overrides the handling of HttpMessageNotReadableException (400 Bad Request).
+     * Handles issues during JSON deserialization (malformed, incorrect type, missing required field).
+     * Returns a detailed ErrorResponse.
      */
     @Override
     @Nullable
@@ -172,25 +221,75 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         HttpStatus httpStatus = HttpStatus.valueOf(status.value());
 
-        String errorMessage = "El cuerpo de la solicitud no se puede leer";
-        List<String> details = new java.util.ArrayList<>();
-        details.add("Path: " + request.getDescription(false).replace("uri=", ""));
+        String baseErrorMessage = ERROR_MESSAGE_MESSAGE_NOT_READABLE;
+        String errorCode = ERROR_CODE_MESSAGE_NOT_READABLE;
+        List<String> details = new ArrayList<>();
 
         Throwable mostSpecificCause = ex.getMostSpecificCause();
-        if (mostSpecificCause != null) {
-            errorMessage = mostSpecificCause.getMessage();
-            if (mostSpecificCause instanceof JsonParseException) {
-                details.add("JSON malformed: " + mostSpecificCause.getMessage());
-            } else if (mostSpecificCause instanceof JsonMappingException) {
-                details.add("JSON mapping error: " + mostSpecificCause.getMessage());
+
+        if (mostSpecificCause instanceof JsonMappingException jsonMappingException) {
+
+            errorCode = ERROR_CODE_JSON_MAPPING_ERROR;
+            baseErrorMessage = ERROR_MESSAGE_JSON_MAPPING_ERROR;
+
+            String path = jsonMappingException.getPath().stream()
+                    .map(ref -> {
+                        if (ref.getFieldName() != null) {
+                            return ref.getFieldName();
+                        } else {
+                            return "[" + ref.getIndex() + "]";
+                        }
+                    })
+                    .collect(Collectors.joining("."));
+
+            if (!path.isEmpty()) {
+                // baseErrorMessage is set more specifically later if path is found
+                details.add(String.format(DETAIL_JSON_MAPPING_PROBLEM_DETAIL_FORMAT, jsonMappingException.getOriginalMessage()));
+                details.add(String.format(DETAIL_JSON_MAPPING_FIELD_PATH_FORMAT, path));
+
+                if (mostSpecificCause instanceof MismatchedInputException mismatchEx) {
+                    if (mismatchEx.getTargetType() != null) {
+                        details.add(String.format(DETAIL_JSON_MAPPING_EXPECTED_TYPE_FORMAT, mismatchEx.getTargetType().getSimpleName()));
+                    }
+                }
+
+            } else {
+                details.add(String.format(DETAIL_JSON_MAPPING_PROBLEM_DETAIL_FORMAT, jsonMappingException.getOriginalMessage()));
             }
+
+        } else if (mostSpecificCause instanceof JsonParseException jsonParseException) {
+            errorCode = ERROR_CODE_JSON_PARSE_ERROR;
+            baseErrorMessage = ERROR_MESSAGE_JSON_PARSE_ERROR;
+            details.add(String.format(DETAIL_JSON_PARSE_LOCATION_FORMAT, jsonParseException.getLocation().getLineNr(), jsonParseException.getLocation().getColumnNr()));
+            details.add(String.format(DETAIL_JSON_MAPPING_PROBLEM_DETAIL_FORMAT, jsonParseException.getOriginalMessage()));
+
         } else {
-            errorMessage = ex.getMessage();
+            details.add(String.format(DETAIL_CAUSE_FORMAT, mostSpecificCause.getClass().getSimpleName(), mostSpecificCause.getMessage()));
         }
 
+        details.add(String.format(DETAIL_REQUEST_PATH_FORMAT, request.getDescription(false).replace(URI, "")));
+
+        // Adjust the base error message if a specific field path was identified for JSON Mapping errors
+        if (errorCode.equals(ERROR_CODE_JSON_MAPPING_ERROR)) {
+            JsonMappingException jsonMappingException = (JsonMappingException) mostSpecificCause;
+            String path = jsonMappingException.getPath().stream()
+                    .map(ref -> {
+                        if (ref.getFieldName() != null) {
+                            return ref.getFieldName();
+                        } else {
+                            return "[" + ref.getIndex() + "]";
+                        }
+                    })
+                    .collect(Collectors.joining("."));
+            if (!path.isEmpty()) {
+                baseErrorMessage = String.format("Error en el campo '%s'", path);
+            }
+        }
+
+
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .code("MNR001")
-                .message(errorMessage)
+                .code(errorCode)
+                .message(baseErrorMessage)
                 .details(details)
                 .timeStamp(ZonedDateTime.now())
                 .build();
@@ -199,31 +298,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Sobrescribe el manejo de TypeMismatchException (400 Bad Request por tipo de dato incorrecto).
-     * Retorna un ErrorResponse con detalles sobre el campo y los tipos involucrados.
+     * Overrides the handling of TypeMismatchException (400 Bad Request due to incorrect data type).
+     * Returns an ErrorResponse with details about the field and involved types.
      */
-    @Override // Indica que estas sobrescribiendo un metodo de la superclase
-    @Nullable // Mantén la anotacion Nullable si estaba en la firma original
+    @Override
+    @Nullable
     protected ResponseEntity<Object> handleTypeMismatch(
             TypeMismatchException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 
-        HttpStatus httpStatus = HttpStatus.valueOf(status.value()); // Convertir HttpStatusCode a HttpStatus
+        HttpStatus httpStatus = HttpStatus.valueOf(status.value());
 
-        String propertyName = ex.getPropertyName() != null ? ex.getPropertyName() : "Propiedad desconocida";
-        Object valueReceived = ex.getValue();
-        Class<?> requiredType = ex.getRequiredType();
-        String requiredTypeName = requiredType != null ? requiredType.getSimpleName() : "Tipo desconocido";
-
-        String detailMessage = String.format(
-                "El parámetro '%s' con valor '%s' no se pudo convertir al tipo requerido '%s'",
-                propertyName,
-                (valueReceived != null ? String.valueOf(valueReceived) : "null"),
-                requiredTypeName
-        );
+        String detailMessage = getDetailMessage(ex);
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .code("TM001")
-                .message("El tipo de parámetro de solicitud no coincide")
+                .code(ERROR_CODE_TYPE_MISMATCH)
+                .message(ERROR_MESSAGE_TYPE_MISMATCH)
                 .details(List.of(detailMessage))
                 .timeStamp(ZonedDateTime.now())
                 .build();
@@ -231,9 +320,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorResponse, headers, httpStatus);
     }
 
+    private static String getDetailMessage(TypeMismatchException ex) {
+        String propertyName = ex.getPropertyName() != null ? ex.getPropertyName() : "Propiedad desconocida";
+        Object valueReceived = ex.getValue();
+        Class<?> requiredType = ex.getRequiredType();
+        String requiredTypeName = requiredType != null ? requiredType.getSimpleName() : "Tipo desconocido";
+
+        return String.format(
+                DETAIL_TYPE_MISMATCH_FORMAT,
+                propertyName,
+                (valueReceived != null ? String.valueOf(valueReceived) : "null"),
+                requiredTypeName
+        );
+    }
+
     /**
-     * Sobrescribe el manejo de MissingServletRequestParameterException (400 Bad Request por parametro faltante).
-     * Retorna un ErrorResponse indicando qué parametro requerido falta.
+     * Overrides the handling of MissingServletRequestParameterException (400 Bad Request due to missing parameter).
+     * Returns an ErrorResponse indicating which required parameter is missing.
      */
     @Override
     @Nullable
@@ -246,14 +349,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         String parameterType = ex.getParameterType();
 
         String detailMessage = String.format(
-                "Falta el parámetro de solicitud requerido '%s' del tipo '%s'",
+                DETAIL_MISSING_PARAMETER_FORMAT,
                 parameterName,
                 parameterType
         );
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .code("MP001")
-                .message("Falta el parámetro de solicitud requerido")
+                .code(ERROR_CODE_MISSING_PARAMETER)
+                .message(ERROR_MESSAGE_MISSING_PARAMETER)
                 .details(List.of(detailMessage))
                 .timeStamp(ZonedDateTime.now())
                 .build();
@@ -261,16 +364,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorResponse, headers, httpStatus);
     }
 
-
+    /**
+     * Handles all other uncaught exceptions.
+     * Logs the exception and returns a 500 Internal Server Error.
+     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAllOtherExceptions(Exception ex, WebRequest request) {
-        System.err.println("Caught unhandled exception: " + ex.getMessage());
-        // ex.printStackTrace(); // Usar logger en produccion
+
+        // Log the unexpected exception with more detail
+        log.error("Ocurrio un error inesperado al procesar la solicitud {}: {}",
+                request.getDescription(true).replace(URI, ""),
+                ex.getMessage(),
+                ex);
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .code("INTERNAL_ERROR")
-                .message("An unexpected error occurred")
-                // .details(List.of(ex.getMessage()))
+                .code(ERROR_CODE_INTERNAL_ERROR)
+                .message(ERROR_MESSAGE_INTERNAL_ERROR)
+                .details(List.of("Error details: " + ex.getMessage()))
                 .timeStamp(ZonedDateTime.now())
                 .build();
 

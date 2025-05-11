@@ -1,6 +1,6 @@
 package com.nexaplatform.infrastructura.db.postgres.repositories.impl;
 
-import com.nexaplatform.domain.exception.EntityNotFound;
+import com.nexaplatform.domain.exception.EntityNotFoundException;
 import com.nexaplatform.domain.models.User;
 import com.nexaplatform.domain.repository.UserRepository;
 import com.nexaplatform.infrastructura.db.postgres.mappers.UserEntityMapper;
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import static com.nexaplatform.domain.errors.Error.USER_NOT_FOUND;
+import static com.nexaplatform.domain.exception.CodeError.ERROR_CODE_NOT_FOUND;
 
 @Log4j2
 @Repository
@@ -36,7 +37,8 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public User getById(Long id) {
         return uMapper.toDomain(uRepository.findById(id).orElseThrow(
-                () -> new EntityNotFound(String.format(USER_NOT_FOUND.getValue(), id))));
+                () -> new EntityNotFoundException(ERROR_CODE_NOT_FOUND,
+                        String.format(USER_NOT_FOUND.getValue(), id))));
     }
 
     @Override
