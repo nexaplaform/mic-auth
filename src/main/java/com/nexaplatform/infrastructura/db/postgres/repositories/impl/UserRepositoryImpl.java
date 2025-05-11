@@ -14,7 +14,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 import static com.nexaplatform.domain.errors.Error.USER_NOT_FOUND;
-import static com.nexaplatform.domain.exception.CodeError.ERROR_CODE_NOT_FOUND;
 
 @Log4j2
 @Repository
@@ -37,7 +36,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public User getById(Long id) {
         return uMapper.toDomain(uRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException(ERROR_CODE_NOT_FOUND,
+                () -> new EntityNotFoundException(USER_NOT_FOUND.getCode(),
                         String.format(USER_NOT_FOUND.getValue(), id))));
     }
 

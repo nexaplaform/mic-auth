@@ -93,7 +93,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * Logs the exception and returns a 409 Conflict with BaseException details in ErrorResponse format.
      */
     @ExceptionHandler(ResourceAlreadyExistsException.class)
-    public ResponseEntity<ErrorResponse> handleResourceAlreadyExistsException(ResourceAlreadyExistsException ex, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handleResourceAlreadyExistsException(
+            ResourceAlreadyExistsException ex, WebRequest request) {
 
         logDetail(ex.getClass().getSimpleName(), request, ex.getMessage());
 
@@ -118,7 +119,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * Logs the exception and returns a 400 Bad Request (or 409 Conflict based on specific rule) with BaseException details in ErrorResponse format.
      */
     @ExceptionHandler(OperationNotAllowedException.class)
-    public ResponseEntity<ErrorResponse> handleOperationNotAllowedException(OperationNotAllowedException ex, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handleOperationNotAllowedException(
+            OperationNotAllowedException ex, WebRequest request) {
 
         logDetail(ex.getClass().getSimpleName(), request, ex.getMessage());
 
@@ -137,7 +139,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * Logs the exception and returns a 400 Bad Request with BaseException details in ErrorResponse format.
      */
     @ExceptionHandler(BusinessRuleViolationException.class)
-    public ResponseEntity<ErrorResponse> handleBusinessRuleViolationException(BusinessRuleViolationException ex, WebRequest request) {
+    public ResponseEntity<ErrorResponse> handleBusinessRuleViolationException(
+            BusinessRuleViolationException ex, WebRequest request) {
 
         logDetail(ex.getClass().getSimpleName(), request, ex.getMessage());
 
@@ -192,11 +195,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpStatus httpStatus = HttpStatus.valueOf(status.value());
 
         List<String> validationErrors = ex.getBindingResult().getFieldErrors().stream()
-                .map(error -> String.format(DETAIL_PROPERTY_VALIDATION_FORMAT, error.getField(), error.getDefaultMessage()))
+                .map(error -> String.format(DETAIL_PROPERTY_VALIDATION_FORMAT, error.getField(),
+                        error.getDefaultMessage()))
                 .collect(Collectors.toList());
 
         ex.getBindingResult().getGlobalErrors().forEach(error ->
-                validationErrors.add(String.format(DETAIL_OBJECT_VALIDATION_FORMAT, error.getObjectName(), error.getDefaultMessage()))
+                validationErrors.add(String.format(DETAIL_OBJECT_VALIDATION_FORMAT, error.getObjectName(),
+                        error.getDefaultMessage()))
         );
 
         ErrorResponse errorResponse = ErrorResponse.builder()
@@ -244,27 +249,33 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
             if (!path.isEmpty()) {
                 // baseErrorMessage is set more specifically later if path is found
-                details.add(String.format(DETAIL_JSON_MAPPING_PROBLEM_DETAIL_FORMAT, jsonMappingException.getOriginalMessage()));
+                details.add(String.format(DETAIL_JSON_MAPPING_PROBLEM_DETAIL_FORMAT,
+                        jsonMappingException.getOriginalMessage()));
                 details.add(String.format(DETAIL_JSON_MAPPING_FIELD_PATH_FORMAT, path));
 
                 if (mostSpecificCause instanceof MismatchedInputException mismatchEx) {
                     if (mismatchEx.getTargetType() != null) {
-                        details.add(String.format(DETAIL_JSON_MAPPING_EXPECTED_TYPE_FORMAT, mismatchEx.getTargetType().getSimpleName()));
+                        details.add(String.format(DETAIL_JSON_MAPPING_EXPECTED_TYPE_FORMAT,
+                                mismatchEx.getTargetType().getSimpleName()));
                     }
                 }
 
             } else {
-                details.add(String.format(DETAIL_JSON_MAPPING_PROBLEM_DETAIL_FORMAT, jsonMappingException.getOriginalMessage()));
+                details.add(String.format(DETAIL_JSON_MAPPING_PROBLEM_DETAIL_FORMAT,
+                        jsonMappingException.getOriginalMessage()));
             }
 
         } else if (mostSpecificCause instanceof JsonParseException jsonParseException) {
             errorCode = ERROR_CODE_JSON_PARSE_ERROR;
             baseErrorMessage = ERROR_MESSAGE_JSON_PARSE_ERROR;
-            details.add(String.format(DETAIL_JSON_PARSE_LOCATION_FORMAT, jsonParseException.getLocation().getLineNr(), jsonParseException.getLocation().getColumnNr()));
-            details.add(String.format(DETAIL_JSON_MAPPING_PROBLEM_DETAIL_FORMAT, jsonParseException.getOriginalMessage()));
+            details.add(String.format(DETAIL_JSON_PARSE_LOCATION_FORMAT,
+                    jsonParseException.getLocation().getLineNr(), jsonParseException.getLocation().getColumnNr()));
+            details.add(String.format(DETAIL_JSON_MAPPING_PROBLEM_DETAIL_FORMAT,
+                    jsonParseException.getOriginalMessage()));
 
         } else {
-            details.add(String.format(DETAIL_CAUSE_FORMAT, mostSpecificCause.getClass().getSimpleName(), mostSpecificCause.getMessage()));
+            details.add(String.format(DETAIL_CAUSE_FORMAT, mostSpecificCause.getClass().getSimpleName(),
+                    mostSpecificCause.getMessage()));
         }
 
         details.add(String.format(DETAIL_REQUEST_PATH_FORMAT, request.getDescription(false).replace(URI, "")));
