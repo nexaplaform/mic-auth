@@ -24,6 +24,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -75,14 +76,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         logDetail(ex.getClass().getSimpleName(), request, ex.getMessage());
 
-        List<String> combinedDetails = ex.getDetails() != null ? new ArrayList<>(ex.getDetails()) : new ArrayList<>();
+        List<String> combinedDetails = Objects.nonNull(ex.getDetails()) ? new ArrayList<>(ex.getDetails()) : new ArrayList<>();
         combinedDetails.add(String.format(DETAIL_ENDPOINT_FORMAT, request.getDescription(false).replace(URI, "")));
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .code(ex.getCode() != null ? ex.getCode() : ERROR_CODE_NOT_FOUND)
-                .message(ex.getMessage() != null ? ex.getMessage() : ERROR_MESSAGE_ENTITY_NOT_FOUND)
+                .code(Objects.nonNull(ex.getCode()) ? ex.getCode() : ERROR_CODE_NOT_FOUND)
+                .message(Objects.nonNull(ex.getMessage()) ? ex.getMessage() : ERROR_MESSAGE_ENTITY_NOT_FOUND)
                 .details(combinedDetails)
-                .timeStamp(ex.getTimeStamp() != null ? ex.getTimeStamp() : ZonedDateTime.now())
+                .timeStamp(Objects.nonNull(ex.getTimeStamp()) ? ex.getTimeStamp() : ZonedDateTime.now())
                 .build();
 
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
@@ -99,10 +100,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         logDetail(ex.getClass().getSimpleName(), request, ex.getMessage());
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .code(ex.getCode() != null ? ex.getCode() : ERROR_CODE_RESOURCE_ALREADY_EXISTS)
-                .message(ex.getMessage() != null ? ex.getMessage() : ERROR_MESSAGE_RESOURCE_ALREADY_EXISTS)
+                .code(Objects.nonNull(ex.getCode()) ? ex.getCode() : ERROR_CODE_RESOURCE_ALREADY_EXISTS)
+                .message(Objects.nonNull(ex.getMessage()) ? ex.getMessage() : ERROR_MESSAGE_RESOURCE_ALREADY_EXISTS)
                 .details(ex.getDetails())
-                .timeStamp(ex.getTimeStamp() != null ? ex.getTimeStamp() : ZonedDateTime.now())
+                .timeStamp(Objects.nonNull(ex.getTimeStamp()) ? ex.getTimeStamp() : ZonedDateTime.now())
                 .build();
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
@@ -125,10 +126,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         logDetail(ex.getClass().getSimpleName(), request, ex.getMessage());
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .code(ex.getCode() != null ? ex.getCode() : ERROR_CODE_OPERATION_NOT_ALLOWED)
-                .message(ex.getMessage() != null ? ex.getMessage() : ERROR_MESSAGE_OPERATION_NOT_ALLOWED)
+                .code(Objects.nonNull(ex.getCode()) ? ex.getCode() : ERROR_CODE_OPERATION_NOT_ALLOWED)
+                .message(Objects.nonNull(ex.getMessage()) ? ex.getMessage() : ERROR_MESSAGE_OPERATION_NOT_ALLOWED)
                 .details(ex.getDetails())
-                .timeStamp(ex.getTimeStamp() != null ? ex.getTimeStamp() : ZonedDateTime.now())
+                .timeStamp(Objects.nonNull(ex.getTimeStamp()) ? ex.getTimeStamp() : ZonedDateTime.now())
                 .build();
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
@@ -145,10 +146,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         logDetail(ex.getClass().getSimpleName(), request, ex.getMessage());
 
         ErrorResponse errorResponse = ErrorResponse.builder()
-                .code(ex.getCode() != null ? ex.getCode() : ERROR_CODE_BUSINESS_RULE_VIOLATION)
-                .message(ex.getMessage() != null ? ex.getMessage() : ERROR_MESSAGE_BUSINESS_RULE_VIOLATION)
+                .code(Objects.nonNull(ex.getCode()) ? ex.getCode() : ERROR_CODE_BUSINESS_RULE_VIOLATION)
+                .message(Objects.nonNull(ex.getMessage()) ? ex.getMessage() : ERROR_MESSAGE_BUSINESS_RULE_VIOLATION)
                 .details(ex.getDetails())
-                .timeStamp(ex.getTimeStamp() != null ? ex.getTimeStamp() : ZonedDateTime.now())
+                .timeStamp(Objects.nonNull(ex.getTimeStamp()) ? ex.getTimeStamp() : ZonedDateTime.now())
                 .build();
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
@@ -168,7 +169,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         details.add(String.format(DETAIL_METHOD_NOT_SUPPORTED_FORMAT, ex.getMethod()));
 
         Set<HttpMethod> supportedMethods = ex.getSupportedHttpMethods();
-        if (supportedMethods != null && !supportedMethods.isEmpty()) {
+        if (Objects.nonNull(supportedMethods) && !supportedMethods.isEmpty()) {
             details.add(String.format(DETAIL_SUPPORTED_METHODS_FORMAT, supportedMethods));
         }
 
@@ -239,7 +240,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
             String path = jsonMappingException.getPath().stream()
                     .map(ref -> {
-                        if (ref.getFieldName() != null) {
+                        if (Objects.nonNull(ref.getFieldName())) {
                             return ref.getFieldName();
                         } else {
                             return "[" + ref.getIndex() + "]";
@@ -254,7 +255,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 details.add(String.format(DETAIL_JSON_MAPPING_FIELD_PATH_FORMAT, path));
 
                 if (mostSpecificCause instanceof MismatchedInputException mismatchEx) {
-                    if (mismatchEx.getTargetType() != null) {
+                    if (Objects.nonNull(mismatchEx.getTargetType())) {
                         details.add(String.format(DETAIL_JSON_MAPPING_EXPECTED_TYPE_FORMAT,
                                 mismatchEx.getTargetType().getSimpleName()));
                     }
@@ -285,7 +286,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             JsonMappingException jsonMappingException = (JsonMappingException) mostSpecificCause;
             String path = jsonMappingException.getPath().stream()
                     .map(ref -> {
-                        if (ref.getFieldName() != null) {
+                        if (Objects.nonNull(ref.getFieldName())) {
                             return ref.getFieldName();
                         } else {
                             return "[" + ref.getIndex() + "]";
@@ -332,15 +333,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     private static String getDetailMessage(TypeMismatchException ex) {
-        String propertyName = ex.getPropertyName() != null ? ex.getPropertyName() : "Propiedad desconocida";
+        String propertyName = Objects.nonNull(ex.getPropertyName()) ? ex.getPropertyName() : "Propiedad desconocida";
         Object valueReceived = ex.getValue();
         Class<?> requiredType = ex.getRequiredType();
-        String requiredTypeName = requiredType != null ? requiredType.getSimpleName() : "Tipo desconocido";
+        String requiredTypeName = Objects.nonNull(requiredType) ? requiredType.getSimpleName() : "Tipo desconocido";
 
         return String.format(
                 DETAIL_TYPE_MISMATCH_FORMAT,
                 propertyName,
-                (valueReceived != null ? String.valueOf(valueReceived) : "null"),
+                (Objects.nonNull(valueReceived) ? String.valueOf(valueReceived) : "null"),
                 requiredTypeName
         );
     }
