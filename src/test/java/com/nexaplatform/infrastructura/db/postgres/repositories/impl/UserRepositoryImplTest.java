@@ -164,10 +164,11 @@ class UserRepositoryImplTest {
 
         List<User> actualUsers = userRepositoryImpl.getPaginated(page, size, sort);
 
+        assertNotNull(actualUsers);
+        assertEquals(1, actualUsers.size());
         assertEquals(expectedUsers, actualUsers);
 
         verify(uRepository).findAll(eq(expectedPageable));
         verify(uMapper).toDomainList(eq(mockUserEntities));
     }
-
 }
