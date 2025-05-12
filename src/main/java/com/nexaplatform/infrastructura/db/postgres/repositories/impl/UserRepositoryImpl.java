@@ -3,11 +3,15 @@ package com.nexaplatform.infrastructura.db.postgres.repositories.impl;
 import com.nexaplatform.domain.exception.EntityNotFoundException;
 import com.nexaplatform.domain.models.User;
 import com.nexaplatform.domain.repository.UserRepository;
+import com.nexaplatform.infrastructura.db.postgres.entities.UserEntity;
 import com.nexaplatform.infrastructura.db.postgres.mappers.UserEntityMapper;
 import com.nexaplatform.infrastructura.db.postgres.repositories.UserRepositoryAdapter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 
@@ -30,14 +34,18 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public List<User> getPaginated(Integer page, Integer size, Sort.Direction sort) {
-        return uMapper.toDomainList(uRepository.findAll());
+        String sortProperty = "id";
+        Sort sortObject = Sort.by(sort != null ? sort : Sort.Direction.ASC, sortProperty);
+        Pageable pageable = PageRequest.of(page, size, sortObject);
+        Page<UserEntity> userEntity = uRepository.findAll(pageable);
+        return uMapper.toDomainList(userEntity.getContent());
     }
 
     @Override
     public User getById(Long id) {
         return uMapper.toDomain(uRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException(USER_NOT_FOUND.getCode(),
-                        String.format(USER_NOT_FOUND.getValue(), id))));
+                        String.format(USER_NOT_FOUND.getMessage(), id))));
     }
 
     @Override

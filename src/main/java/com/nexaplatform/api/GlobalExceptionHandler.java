@@ -77,7 +77,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         logDetail(ex.getClass().getSimpleName(), request, ex.getMessage());
 
         List<String> combinedDetails = Objects.nonNull(ex.getDetails()) ? new ArrayList<>(ex.getDetails()) : new ArrayList<>();
-        combinedDetails.add(String.format(DETAIL_ENDPOINT_FORMAT, request.getDescription(false).replace(URI, "")));
+        combinedDetails.add(String.format(DETAIL_ENDPOINT_FORMAT, request.getDescription(false)
+                .replace(URI, "")));
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .code(Objects.nonNull(ex.getCode()) ? ex.getCode() : ERROR_CODE_NOT_FOUND)
@@ -173,7 +174,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             details.add(String.format(DETAIL_SUPPORTED_METHODS_FORMAT, supportedMethods));
         }
 
-        details.add(String.format(DETAIL_ENDPOINT_FORMAT, request.getDescription(false).replace(URI, "")));
+        details.add(String.format(DETAIL_ENDPOINT_FORMAT, request.getDescription(false)
+                .replace(URI, "")));
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .code(ERROR_CODE_METHOD_NOT_ALLOWED)
@@ -249,7 +251,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                     .collect(Collectors.joining("."));
 
             if (!path.isEmpty()) {
-                // baseErrorMessage is set more specifically later if path is found
                 details.add(String.format(DETAIL_JSON_MAPPING_PROBLEM_DETAIL_FORMAT,
                         jsonMappingException.getOriginalMessage()));
                 details.add(String.format(DETAIL_JSON_MAPPING_FIELD_PATH_FORMAT, path));
@@ -279,9 +280,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                     mostSpecificCause.getMessage()));
         }
 
-        details.add(String.format(DETAIL_REQUEST_PATH_FORMAT, request.getDescription(false).replace(URI, "")));
+        details.add(String.format(DETAIL_REQUEST_PATH_FORMAT, request.getDescription(false)
+                .replace(URI, "")));
 
-        // Adjust the base error message if a specific field path was identified for JSON Mapping errors
         if (errorCode.equals(ERROR_CODE_JSON_MAPPING_ERROR)) {
             JsonMappingException jsonMappingException = (JsonMappingException) mostSpecificCause;
             String path = jsonMappingException.getPath().stream()
@@ -382,8 +383,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleAllOtherExceptions(Exception ex, WebRequest request) {
-
-        // Log the unexpected exception with more detail
+        
         log.error("Ocurrio un error inesperado al procesar la solicitud {}: {}",
                 request.getDescription(true).replace(URI, ""),
                 ex.getMessage(),

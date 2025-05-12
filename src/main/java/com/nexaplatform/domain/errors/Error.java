@@ -9,11 +9,11 @@ public enum Error {
 
     USER_NOT_FOUND("EL usuario con el identificador %s no existe", ERROR_CODE_NOT_FOUND);
 
-    private final String value;
+    private final String message;
     private final String code;
 
     Error(String value, String code) {
-        this.value = value;
+        this.message = value;
         this.code = code;
     }
 }
