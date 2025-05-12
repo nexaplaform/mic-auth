@@ -3,14 +3,18 @@ package com.nexaplatform.infrastructura.db.postgres.entities;
 import com.nexaplatform.domain.models.UserStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
+
 
 @Data
 @With
-@Builder
-@AllArgsConstructor
+@Entity
+@SuperBuilder
 @NoArgsConstructor
-@Entity(name = "users")
-public class UserEntity {
+@AllArgsConstructor
+@Table(name = "users")
+@EqualsAndHashCode(callSuper = true)
+public class UserEntity extends Auditable {
 
     @Id
     @Column(name = "id")
