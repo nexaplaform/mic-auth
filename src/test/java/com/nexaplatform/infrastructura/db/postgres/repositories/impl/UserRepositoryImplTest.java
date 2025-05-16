@@ -5,9 +5,12 @@ import com.nexaplatform.domain.models.User;
 import com.nexaplatform.infrastructura.db.postgres.entities.UserEntity;
 import com.nexaplatform.infrastructura.db.postgres.mappers.UserEntityMapper;
 import com.nexaplatform.infrastructura.db.postgres.repositories.UserRepositoryAdapter;
+import com.nexaplatform.providers.user.UserProvider;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.beans.BeanUtils;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.*;
 
@@ -34,34 +37,45 @@ class UserRepositoryImplTest {
 
     @Test
     void create_ok() {
+  
+        User inputUser = getUserOne();
+        UserEntity entityToSave = getUserEntityOne();
+        User createdUser = getUserOne();
 
-        when(uMapper.toDomain(getUserEntityOne())).thenReturn(getUserOne());
-        when(uMapper.toEntity(getUserOne())).thenReturn(getUserEntityOne());
-        when(uRepository.save(any())).thenReturn(getUserEntityOne());
+        ArgumentCaptor<UserEntity> savedEntityCaptor = ArgumentCaptor.forClass(UserEntity.class);
 
-        User user = userRepositoryImpl.create(getUserOne());
+        when(uMapper.toEntity(inputUser)).thenReturn(entityToSave);
+        when(uRepository.save(savedEntityCaptor.capture())).thenReturn(entityToSave);
+        when(uMapper.toDomain(any(UserEntity.class))).thenReturn(createdUser);
 
-        assertNotNull(user);
-        assertEquals(getUserOne(), user);
 
-        verify(uMapper, times(1)).toDomain(any());
-        verify(uRepository, times(1)).save(any());
-        verify(uMapper, times(1)).toEntity(any());
+        User resultUser = userRepositoryImpl.create(inputUser);
+
+        assertNotNull(resultUser);
+        assertEquals(createdUser, resultUser);
+
+        verify(uMapper, times(1)).toEntity(inputUser);
+        verify(uRepository, times(1)).save(entityToSave);
+        verify(uMapper, times(1)).toDomain(savedEntityCaptor.getValue());
     }
 
     @Test
     void getById_ok() {
 
-        when(uMapper.toDomain(getUserEntityOne())).thenReturn(getUserOne());
-        when(uRepository.findById(1L)).thenReturn(Optional.of(getUserEntityOne()));
+        Long userId = 1L;
+        UserEntity expectedEntity = getUserEntityOne();
+        User expectedUser = getUserOne();
 
-        User user = userRepositoryImpl.getById(1L);
+        when(uRepository.findById(userId)).thenReturn(Optional.of(expectedEntity));
+        when(uMapper.toDomain(expectedEntity)).thenReturn(expectedUser);
 
-        assertNotNull(user);
-        assertEquals(getUserOne(), user);
+        User actualUser = userRepositoryImpl.getById(userId);
 
-        verify(uMapper).toDomain(any());
-        verify(uRepository).findById(1L);
+        assertNotNull(actualUser);
+        assertEquals(expectedUser, actualUser);
+
+        verify(uMapper).toDomain(expectedEntity);
+        verify(uRepository).findById(userId);
     }
 
     @Test
@@ -84,21 +98,44 @@ class UserRepositoryImplTest {
     @Test
     void update_ok() {
 
-        when(uRepository.findById(1L)).thenReturn(Optional.of(getUserEntityOne()));
-        when(uMapper.toDomain(getUserEntityOne())).thenReturn(getUserOne());
+        Long userId = 1L;
+        User inputUser = getUserTwo();
+        UserEntity existingEntity = getUserEntityOne();
+        User initialRetrievedUser = getUserOne();
 
-        when(uRepository.save(getUserEntityTwo())).thenReturn(getUserEntityTwo());
-        when(uMapper.toEntity(getUserTwo())).thenReturn(getUserEntityTwo());
-        when(uMapper.toDomain(getUserEntityTwo())).thenReturn(getUserTwo());
+        when(uRepository.findById(userId)).thenReturn(Optional.of(existingEntity));
+        when(uMapper.toDomain(existingEntity)).thenReturn(initialRetrievedUser);
 
-        User user = userRepositoryImpl.update(1L, getUserTwo());
+        User modifiedUserResponse = new User();
+        BeanUtils.copyProperties(initialRetrievedUser, modifiedUserResponse);
+        BeanUtils.copyProperties(inputUser, modifiedUserResponse);
+        modifiedUserResponse.setStatus(initialRetrievedUser.getStatus());
 
-        assertNotNull(user);
-        assertEquals(getUserTwo(), user);
+        UserEntity entityToSave = getUserEntityTwo();
 
-        verify(uRepository, times(1)).findById(anyLong());
+        when(uMapper.toEntity(modifiedUserResponse)).thenReturn(entityToSave);
+
+        ArgumentCaptor<UserEntity> savedEntityCaptor = ArgumentCaptor.forClass(UserEntity.class);
+
+        when(uRepository.save(savedEntityCaptor.capture())).thenReturn(entityToSave);
+        User finalUpdatedUser = getUserTwo();
+        when(uMapper.toDomain(entityToSave)).thenReturn(finalUpdatedUser);
+
+        User actualUser = userRepositoryImpl.update(userId, inputUser);
+
+        assertNotNull(actualUser);
+        assertEquals(finalUpdatedUser, actualUser);
+
+        verify(uRepository).findById(userId);
+        verify(uMapper).toDomain(existingEntity);
+
+        verify(uMapper).toEntity(modifiedUserResponse);
+        verify(uRepository).save(savedEntityCaptor.getValue());
+        verify(uMapper).toDomain(savedEntityCaptor.getValue());
+
         verify(uMapper, times(2)).toDomain(any());
         verify(uRepository, times(1)).save(any());
+        verify(uMapper, times(1)).toEntity(any());
     }
 
     @Test
@@ -120,14 +157,23 @@ class UserRepositoryImplTest {
     @Test
     void delete_ok() {
 
-        when(uRepository.findById(1L)).thenReturn(Optional.of(getUserEntityOne()));
-        when(uMapper.toDomain(getUserEntityOne())).thenReturn(getUserOne());
+        Long userId = 1L;
+        UserEntity expectedEntity = UserProvider.getUserEntityOne();
+        User expectedUser = UserProvider.getUserOne();
 
-        userRepositoryImpl.delete(1L);
+        when(uRepository.findById(userId)).thenReturn(Optional.of(expectedEntity));
+        when(uMapper.toDomain(expectedEntity)).thenReturn(expectedUser);
 
-        verify(uRepository, times(1)).findById(1L);
-        verify(uRepository, times(1)).deleteById(1L);
-        verify(uMapper, times(1)).toDomain(getUserEntityOne());
+        ArgumentCaptor<UserEntity> toDomainArgumentCaptor = ArgumentCaptor.forClass(UserEntity.class);
+
+        userRepositoryImpl.delete(userId);
+
+        verify(uRepository, times(1)).findById(userId);
+        verify(uRepository, times(1)).deleteById(userId);
+        verify(uMapper, times(1)).toDomain(toDomainArgumentCaptor.capture());
+
+        UserEntity actualEntityPassedToToDomain = toDomainArgumentCaptor.getValue();
+        assertEquals(expectedEntity, actualEntityPassedToToDomain, "La entidad pasada a uMapper.toDomain debe ser igual a la entidad esperada.");
     }
 
     @Test

@@ -13,7 +13,7 @@ public class SpringSecurityAuditorAware implements AuditorAware<String> {
     @Override
     public Optional<String> getCurrentAuditor() {
         //TODO: implementar la logica para sacar el usuario del contexto
-        //Cuando este implementada la parte de seguridad
+        // Cuando este implementada la parte de seguridad
         return Optional.of("Admin");
     }
 }

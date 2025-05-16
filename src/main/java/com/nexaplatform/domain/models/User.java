@@ -5,6 +5,7 @@ import lombok.*;
 @Data
 @With
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
 public class User {

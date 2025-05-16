@@ -51,9 +51,9 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public User update(Long id, User user) {
         User userResponse = this.getById(id);
-        user.setId(id);
+        //user.setId(id);
         user.setStatus(userResponse.getStatus());
-        BeanUtils.copyProperties(user, userResponse);
+        BeanUtils.copyProperties(user, userResponse, "id");
         return uMapper.toDomain(uRepository.save(uMapper.toEntity(userResponse)));
     }
 
