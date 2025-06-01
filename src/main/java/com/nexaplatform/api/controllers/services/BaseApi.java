@@ -51,7 +51,7 @@ public interface BaseApi<I, O, K> {
     default ResponseEntity<O> update(
             @Valid
             @PathVariable K id,
-            @RequestBody I user) {
+            @RequestBody I dto) {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 

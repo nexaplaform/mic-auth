@@ -1,7 +1,6 @@
-package com.nexaplatform.api.controllers.services.dto.in;
+package com.nexaplatform.domain.models;
 
 import lombok.*;
-
 
 @Data
 @With
@@ -9,10 +8,10 @@ import lombok.*;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoleDtoIn  {
+public class Role {
 
+    private Long id;
     private String name;
     private String description;
     private Boolean active;
-
 }

@@ -24,33 +24,26 @@ public class UserController implements BaseApi<UserDtoIn, UserDtoOut, Long> {
 
     @Override
     public ResponseEntity<UserDtoOut> create(UserDtoIn dto) {
-        return new ResponseEntity<>(
-                mapper.toDto(userUseCase.create(mapper.toDomain(dto))),
-                HttpStatus.CREATED);
+        return new ResponseEntity<>(mapper.toDto(userUseCase.create(mapper.toDomain(dto))), HttpStatus.CREATED);
     }
 
     @Override
-    public ResponseEntity<List<UserDtoOut>> getPaginated(
-            Integer page, Integer size, Sort.Direction sort) {
-        return new ResponseEntity<>(mapper.toDtoList(
-                userUseCase.getPaginated(page, size, sort)), HttpStatus.OK);
+    public ResponseEntity<List<UserDtoOut>> getPaginated(Integer page, Integer size, Sort.Direction sort) {
+        return new ResponseEntity<>(mapper.toDtoList(userUseCase.getPaginated(page, size, sort)), HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<UserDtoOut> getById(Long id) {
-        return new ResponseEntity<>(mapper.toDto(
-                userUseCase.getById(id)), HttpStatus.OK);
+        return new ResponseEntity<>(mapper.toDto(userUseCase.getById(id)), HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<UserDtoOut> update(Long id, UserDtoIn user) {
-        return new ResponseEntity<>(mapper.toDto(
-                userUseCase.update(id, mapper.toDomain(user))), HttpStatus.OK);
+    public ResponseEntity<UserDtoOut> update(Long id, UserDtoIn dto) {
+        return new ResponseEntity<>(mapper.toDto(userUseCase.update(id, mapper.toDomain(dto))), HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<Void> delete(Long id) {
-        userUseCase.delete(id);
+    public ResponseEntity<Void> delete(Long id) {userUseCase.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
