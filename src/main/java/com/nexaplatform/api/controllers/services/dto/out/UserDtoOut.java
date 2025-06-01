@@ -1,8 +1,11 @@
 package com.nexaplatform.api.controllers.services.dto.out;
 
 import com.nexaplatform.domain.models.UserStatus;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+
+import java.util.List;
 
 @Data
 @With
@@ -31,4 +34,7 @@ public class UserDtoOut {
 
     @Schema(example = "ACTIVE")
     private UserStatus status;
+
+    @ArraySchema(schema = @Schema(implementation = RoleDtoOut.class))
+    private List<RoleDtoOut> roles;
 }

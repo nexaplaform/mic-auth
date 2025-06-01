@@ -2,6 +2,8 @@ package com.nexaplatform.domain.models;
 
 import lombok.*;
 
+import java.util.List;
+
 @Data
 @With
 @Builder
@@ -16,9 +18,7 @@ public class User {
     private String phoneNumber;
     private String email;
     private String password;
-    private UserStatus status;
-
-    public void setInitialStatus() {
-        this.status = UserStatus.ACTIVE;
-    }
+    @Builder.Default
+    private UserStatus status = UserStatus.ACTIVE;
+    private List<Role> roles;
 }

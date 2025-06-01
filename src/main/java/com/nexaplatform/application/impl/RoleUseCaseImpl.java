@@ -15,30 +15,30 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RoleUseCaseImpl implements RoleUserCase {
 
-    private final RoleRepository rRepository;
+    private final RoleRepository roleRepository;
 
     @Override
     public Role create(Role entity) {
-        return rRepository.create(entity);
+        return roleRepository.create(entity);
     }
 
     @Override
     public List<Role> getPaginated(Integer page, Integer size, Sort.Direction sort) {
-        return rRepository.getPaginated(page, size, sort);
+        return roleRepository.getPaginated(page, size, sort);
     }
 
     @Override
     public Role getById(Long id) {
-        return rRepository.getById(id);
+        return roleRepository.getById(id);
     }
 
     @Override
     public Role update(Long id, Role entity) {
-        return rRepository.update(id, entity);
+        return roleRepository.update(id, entity);
     }
 
     @Override
     public void delete(Long id) {
-        rRepository.delete(id);
+        roleRepository.delete(id);
     }
 }

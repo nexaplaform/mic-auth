@@ -33,42 +33,40 @@ public class GlobalErrorResponsesCustomizer implements OpenApiCustomizer {
     @Override
     public void customise(OpenAPI openApi) {
 
-        openApi.getPaths().forEach((pathName, pathItem) -> {
-            pathItem.readOperationsMap().forEach((httpMethod, operation) -> {
-                ApiResponses apiResponses = operation.getResponses();
-                if (apiResponses == null) {
-                    apiResponses = new ApiResponses();
-                    operation.setResponses(apiResponses);
-                }
+        openApi.getPaths().forEach((pathName, pathItem) -> pathItem.readOperationsMap().forEach((httpMethod, operation) -> {
+            ApiResponses apiResponses = operation.getResponses();
+            if (apiResponses == null) {
+                apiResponses = new ApiResponses();
+                operation.setResponses(apiResponses);
+            }
 
-                addApiResponseIfNotPresent(apiResponses, CODE_401, UNAUTHORIZED);
-                addApiResponseIfNotPresent(apiResponses, CODE_500, INTERNAL_SERVER_ERROR);
+            addApiResponseIfNotPresent(apiResponses, CODE_401, UNAUTHORIZED);
+            addApiResponseIfNotPresent(apiResponses, CODE_500, INTERNAL_SERVER_ERROR);
 
-                switch (httpMethod) {
-                    case GET:
-                        addApiResponseIfNotPresent(apiResponses, CONDE_404, NOT_FOUND);
-                        addApiResponseIfNotPresent(apiResponses, CODE_403, FORBIDDEN);
-                        break;
-                    case POST:
-                        addApiResponseIfNotPresent(apiResponses, CODE_400, BAD_REQUEST);
-                        addApiResponseIfNotPresent(apiResponses, CODE_409, CONFLICT);
-                        addApiResponseIfNotPresent(apiResponses, CODE_403, FORBIDDEN);
-                        break;
-                    case PUT:
-                    case PATCH:
-                        addApiResponseIfNotPresent(apiResponses, CODE_400, BAD_REQUEST);
-                        addApiResponseIfNotPresent(apiResponses, CONDE_404, NOT_FOUND);
-                        addApiResponseIfNotPresent(apiResponses, CODE_403, FORBIDDEN);
-                        break;
-                    case DELETE:
-                        addApiResponseIfNotPresent(apiResponses, CONDE_404, NOT_FOUND);
-                        addApiResponseIfNotPresent(apiResponses, CODE_403, FORBIDDEN);
-                        break;
-                    default:
-                        break;
-                }
-            });
-        });
+            switch (httpMethod) {
+                case GET:
+                    addApiResponseIfNotPresent(apiResponses, CONDE_404, NOT_FOUND);
+                    addApiResponseIfNotPresent(apiResponses, CODE_403, FORBIDDEN);
+                    break;
+                case POST:
+                    addApiResponseIfNotPresent(apiResponses, CODE_400, BAD_REQUEST);
+                    addApiResponseIfNotPresent(apiResponses, CODE_409, CONFLICT);
+                    addApiResponseIfNotPresent(apiResponses, CODE_403, FORBIDDEN);
+                    break;
+                case PUT:
+                case PATCH:
+                    addApiResponseIfNotPresent(apiResponses, CODE_400, BAD_REQUEST);
+                    addApiResponseIfNotPresent(apiResponses, CONDE_404, NOT_FOUND);
+                    addApiResponseIfNotPresent(apiResponses, CODE_403, FORBIDDEN);
+                    break;
+                case DELETE:
+                    addApiResponseIfNotPresent(apiResponses, CONDE_404, NOT_FOUND);
+                    addApiResponseIfNotPresent(apiResponses, CODE_403, FORBIDDEN);
+                    break;
+                default:
+                    break;
+            }
+        }));
     }
 
     private void addApiResponseIfNotPresent(ApiResponses apiResponses, String code, String description) {
