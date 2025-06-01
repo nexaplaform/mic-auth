@@ -1,6 +1,5 @@
 package com.nexaplatform.providers.user;
 
-
 import com.nexaplatform.api.controllers.services.dto.in.UserDtoIn;
 import com.nexaplatform.api.controllers.services.dto.out.UserDtoOut;
 import com.nexaplatform.domain.models.User;
@@ -18,14 +17,14 @@ public abstract class UserProvider {
     public static final String EMAIL_ONE = "johnDoe@exmaple.com";
     public static final String PASSWORD_ONE = "123456789";
     public static final String PHONE_NUMBER_ONE = "5-5555-5555";
-
     public static final String FIRST_NAME_TWO = "William";
     public static final String LAST_NAME_TWO = "Thomas";
     public static final String FULL_NAME_TWO = FIRST_NAME_TWO + " " + LAST_NAME_TWO;
     public static final String EMAIL_TWO = "william.t@example.com";
     public static final String PASSWORD_TWO = "mysecret!";
     public static final String PHONE_NUMBER_TWO = "123-555-0103";
-
+    public static final long ID = 1L;
+    public static final String BASE_PATH = "v1/users";
 
     public static UserDtoIn getUserDtoInOne() {
         return UserDtoIn.builder()
@@ -49,7 +48,7 @@ public abstract class UserProvider {
 
     public static UserDtoOut getUserDtoOutOne() {
         return UserDtoOut.builder()
-                .id(1L)
+                .id(ID)
                 .firstName(FIRST_NAME_ONE)
                 .lastName(LAST_NAME_ONE)
                 .email(EMAIL_ONE)
@@ -61,7 +60,7 @@ public abstract class UserProvider {
 
     public static UserDtoOut getUserDtoOutTwo() {
         return UserDtoOut.builder()
-                .id(1L)
+                .id(2L)
                 .firstName(FIRST_NAME_TWO)
                 .lastName(LAST_NAME_TWO)
                 .email(EMAIL_TWO)
@@ -73,7 +72,7 @@ public abstract class UserProvider {
 
     public static User getUserOne() {
         return User.builder()
-                .id(1L)
+                .id(ID)
                 .firstName(FIRST_NAME_ONE)
                 .lastName(LAST_NAME_ONE)
                 .email(EMAIL_ONE)
@@ -85,7 +84,7 @@ public abstract class UserProvider {
 
     public static User getUserTwo() {
         return User.builder()
-                .id(1L)
+                .id(ID)
                 .firstName(FIRST_NAME_TWO)
                 .lastName(LAST_NAME_TWO)
                 .email(EMAIL_TWO)
@@ -97,7 +96,6 @@ public abstract class UserProvider {
 
     public static UserEntity getUserEntityOne() {
         return UserEntity.builder()
-                .id(1L)
                 .firstName(FIRST_NAME_ONE)
                 .lastName(LAST_NAME_ONE)
                 .email(EMAIL_ONE)
@@ -109,7 +107,6 @@ public abstract class UserProvider {
 
     public static UserEntity getUserEntityTwo() {
         return UserEntity.builder()
-                .id(1L)
                 .firstName(FIRST_NAME_TWO)
                 .lastName(LAST_NAME_TWO)
                 .email(EMAIL_TWO)

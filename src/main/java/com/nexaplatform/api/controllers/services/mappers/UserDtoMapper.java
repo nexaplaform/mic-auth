@@ -27,7 +27,6 @@ public interface UserDtoMapper {
 
         String firstName = user.getFirstName() == null ? null : user.getFirstName();
         String lastName = user.getLastName() == null ? null : user.getLastName();
-
         return firstName + " " + lastName;
     }
 

@@ -4,16 +4,15 @@ server:
 spring:
   application:
     name: mic-auth
-
   datasource:
     url: jdbc:postgresql://localhost:5432/micAuth
-    username: userAuth
-    password: passAuth
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: none
-    show-sql: true
+    #show-sql: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect

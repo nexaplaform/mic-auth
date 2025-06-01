@@ -7,11 +7,12 @@ import com.nexaplatform.infrastructura.db.postgres.mappers.UserEntityMapper;
 import com.nexaplatform.infrastructura.db.postgres.repositories.UserRepositoryAdapter;
 import com.nexaplatform.providers.user.UserProvider;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.BeanUtils;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.*;
 
 import java.util.List;
@@ -22,7 +23,7 @@ import static com.nexaplatform.providers.user.UserProvider.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class UserRepositoryImplTest {
 
     @Mock
@@ -173,7 +174,8 @@ class UserRepositoryImplTest {
         verify(uMapper, times(1)).toDomain(toDomainArgumentCaptor.capture());
 
         UserEntity actualEntityPassedToToDomain = toDomainArgumentCaptor.getValue();
-        assertEquals(expectedEntity, actualEntityPassedToToDomain, "La entidad pasada a uMapper.toDomain debe ser igual a la entidad esperada.");
+        assertEquals(expectedEntity, actualEntityPassedToToDomain,
+                "La entidad pasada a uMapper.toDomain debe ser igual a la entidad esperada.");
     }
 
     @Test
