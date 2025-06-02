@@ -13,12 +13,6 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-
   liquibase:
     enabled: true
-
-  springdoc:
-    show-actuator: true
-    packagesToScan:
-      - com.nexaplatform.api
 

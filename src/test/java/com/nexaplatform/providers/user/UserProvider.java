@@ -8,6 +8,10 @@ import com.nexaplatform.infrastructura.db.postgres.entities.UserEntity;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
+import static com.nexaplatform.providers.user.RoleProvider.*;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public abstract class UserProvider {
 
@@ -33,6 +37,7 @@ public abstract class UserProvider {
                 .email(EMAIL_ONE)
                 .password(PASSWORD_ONE)
                 .phoneNumber(PHONE_NUMBER_ONE)
+                .roles(List.of(1L, 2L))
                 .build();
     }
 
@@ -43,6 +48,7 @@ public abstract class UserProvider {
                 .email(EMAIL_TWO)
                 .password(PASSWORD_TWO)
                 .phoneNumber(PHONE_NUMBER_TWO)
+                .roles(List.of(1L, 2L))
                 .build();
     }
 
@@ -55,6 +61,7 @@ public abstract class UserProvider {
                 .fullName(FULL_NAME_ONE)
                 .phoneNumber(PHONE_NUMBER_ONE)
                 .status(UserStatus.ACTIVE)
+                .roles(List.of(getRoleDtoOutOne(), getRoleDtoOutTwo()))
                 .build();
     }
 
@@ -67,6 +74,7 @@ public abstract class UserProvider {
                 .fullName(FULL_NAME_TWO)
                 .phoneNumber(PHONE_NUMBER_TWO)
                 .status(UserStatus.ACTIVE)
+                .roles(List.of(getRoleDtoOutOne(), getRoleDtoOutTwo()))
                 .build();
     }
 
@@ -79,6 +87,7 @@ public abstract class UserProvider {
                 .password(PASSWORD_ONE)
                 .phoneNumber(PHONE_NUMBER_ONE)
                 .status(UserStatus.ACTIVE)
+                .roles(List.of(getRoleOne(), getRoleTwo()))
                 .build();
     }
 
@@ -91,6 +100,7 @@ public abstract class UserProvider {
                 .password(PASSWORD_TWO)
                 .phoneNumber(PHONE_NUMBER_TWO)
                 .status(UserStatus.ACTIVE)
+                .roles(List.of(getRoleOne(), getRoleTwo()))
                 .build();
     }
 
@@ -102,6 +112,7 @@ public abstract class UserProvider {
                 .password(PASSWORD_ONE)
                 .phoneNumber(PHONE_NUMBER_ONE)
                 .status(UserStatus.ACTIVE)
+                .roles(List.of(getRoleEntityOne(), getRoleEntityTwo()))
                 .build();
     }
 
@@ -113,6 +124,7 @@ public abstract class UserProvider {
                 .password(PASSWORD_TWO)
                 .phoneNumber(PHONE_NUMBER_TWO)
                 .status(UserStatus.ACTIVE)
+                .roles(List.of(getRoleEntityOne(), getRoleEntityTwo()))
                 .build();
     }
 }

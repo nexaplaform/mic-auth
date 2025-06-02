@@ -1,6 +1,6 @@
 package com.nexaplatform.api.controllers;
 
-import com.nexaplatform.TestcontainersConfiguration;
+import com.nexaplatform.TestContainersConfiguration;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -20,7 +20,7 @@ import java.util.List;
 @Testcontainers
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension.class)
-@Import(TestcontainersConfiguration.class)
+@Import(TestContainersConfiguration.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class BaseIntegration {
 

@@ -1,5 +1,6 @@
 package com.nexaplatform.providers.user;
 
+import com.nexaplatform.api.controllers.services.dto.in.RoleDtoIn;
 import com.nexaplatform.api.controllers.services.dto.out.RoleDtoOut;
 import com.nexaplatform.domain.models.Role;
 import com.nexaplatform.infrastructura.db.postgres.entities.RoleEntity;
@@ -14,13 +15,29 @@ public class RoleProvider {
     public static final Long ROLE_ID_ONE = 1L;
     public static final Long ROLE_ID_TWO = 2L;
 
-    public static final String ROLE_NAME_USER = "user";
-    public static final String ROLE_NAME_ADMIN = "admin";
+    public static final String ROLE_NAME_USER = "USER";
+    public static final String ROLE_NAME_ADMIN = "ADMIN";
 
     public static final String ROLE_DESC_USER = "Role for user generic";
     public static final String ROLE_DESC_ADMIN = "Role for admin app";
 
     public static final Boolean ROLE_ACTIVE = Boolean.TRUE;
+
+    public static RoleDtoIn getRoleDtoInOne() {
+        return RoleDtoIn.builder()
+                .name(ROLE_NAME_USER)
+                .description(ROLE_DESC_USER)
+                .active(ROLE_ACTIVE)
+                .build();
+    }
+
+    public static RoleDtoIn getRoleDtoInTwo() {
+        return RoleDtoIn.builder()
+                .name(ROLE_NAME_ADMIN)
+                .description(ROLE_DESC_ADMIN)
+                .active(ROLE_ACTIVE)
+                .build();
+    }
 
     public static RoleDtoOut getRoleDtoOutOne() {
         return RoleDtoOut.builder()

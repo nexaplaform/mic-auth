@@ -15,7 +15,7 @@ import java.util.List;
 @Log4j2
 @Service
 @RequiredArgsConstructor
-public class UserCaseImpl implements UserUseCase {
+public class UserUseCaseImpl implements UserUseCase {
 
     private final UserRepository uRepository;
     private final RoleRepository roleRepository;
