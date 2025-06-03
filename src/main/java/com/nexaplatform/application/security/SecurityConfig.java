@@ -49,20 +49,16 @@ public class SecurityConfig {
 
         http.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
                 .with(authorizationServerConfigurer, authorizationServer ->
-                        authorizationServer.oidc(Customizer.withDefaults())    // Enable OpenID Connect 1.0
+                        authorizationServer.oidc(Customizer.withDefaults())
                 )
                 .authorizeHttpRequests(authorize ->
                         authorize.anyRequest().authenticated()
                 )
-                // Redirect to the login page when not authenticated from the
-                // authorization endpoint
                 .exceptionHandling(exceptions -> exceptions
                         .defaultAuthenticationEntryPointFor(
                                 new LoginUrlAuthenticationEntryPoint("/login"),
                                 new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
-                        )
-                );
-
+                        ));
         return http.build();
     }
 
@@ -70,24 +66,14 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/oauth2/token", "/v1/roles/**", "/v1/users/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/v1/roles/**", "/v1/users/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.ignoringRequestMatchers(
-                        "/oauth2/token", "/v1/roles/**", "/v1/users/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html"))
+                        "/v1/roles/**", "/v1/users/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html"))
                 .formLogin(Customizer.withDefaults());
 
         return http.build();
     }
-
-//    @Bean
-//    public UserDetailsService userDetailsService() {
-//        UserDetails userDetails = User.withUsername("user")
-//                .password("{noop}user")
-//                .roles("USER")
-//                .build();
-//
-//        return new InMemoryUserDetailsManager(userDetails);
-//    }
 
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
