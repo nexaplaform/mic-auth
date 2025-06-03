@@ -61,4 +61,9 @@ public class UserRepositoryImpl implements UserRepository {
         this.getById(id);
         uRepository.deleteById(id);
     }
+
+    @Override
+    public User findByEmail(String email) {
+        return uMapper.toDomain(uRepository.findByEmail(email));
+    }
 }

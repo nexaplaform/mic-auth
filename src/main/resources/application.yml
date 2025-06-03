@@ -1,5 +1,5 @@
 server:
-  port: 6003
+  port: 9001
 
 api:
   title: Documentation of Auth-microservices

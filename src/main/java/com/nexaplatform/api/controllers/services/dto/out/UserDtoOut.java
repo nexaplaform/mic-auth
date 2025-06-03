@@ -37,4 +37,16 @@ public class UserDtoOut {
 
     @ArraySchema(schema = @Schema(implementation = RoleDtoOut.class))
     private List<RoleDtoOut> roles;
+
+    @Schema(example = "true")
+    private Boolean enabled;
+
+    @Schema(example = "true")
+    private Boolean accountNonExpired;
+
+    @Schema(example = "true")
+    private Boolean accountNonLocked;
+
+    @Schema(example = "true")
+    private Boolean credentialsNonExpired;
 }

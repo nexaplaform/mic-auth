@@ -1,7 +1,10 @@
 package com.nexaplatform.domain.models;
 
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
 import java.util.List;
 
 @Data
@@ -10,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class User {
+public class User implements UserDetails {
 
     private Long id;
     private String firstName;
@@ -21,4 +24,42 @@ public class User {
     @Builder.Default
     private UserStatus status = UserStatus.ACTIVE;
     private List<Role> roles;
+    @Builder.Default
+    private Boolean enabled = true;
+    @Builder.Default
+    private Boolean accountNonExpired = true;
+    @Builder.Default
+    private Boolean accountNonLocked = true;
+    @Builder.Default
+    private Boolean credentialsNonExpired = true;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return this.roles;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return this.accountNonExpired;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return this.accountNonLocked;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return this.credentialsNonExpired;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.enabled;
+    }
 }
