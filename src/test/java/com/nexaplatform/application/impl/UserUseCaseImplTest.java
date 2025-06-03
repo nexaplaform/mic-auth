@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
@@ -17,8 +18,7 @@ import static com.nexaplatform.providers.user.UserProvider.getUserOne;
 import static com.nexaplatform.providers.user.UserProvider.getUserTwo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -30,6 +30,8 @@ class UserUseCaseImplTest {
     private UserRepository uRepository;
     @Mock
     private RoleRepository roleRepository;
+    @Mock
+    private PasswordEncoder passwordEncoder;
     @InjectMocks
     private UserUseCaseImpl userUseCase;
 
@@ -38,6 +40,7 @@ class UserUseCaseImplTest {
 
         when(roleRepository.getById(ID)).thenReturn(getRoleOne());
         when(uRepository.create(any(User.class))).thenReturn(getUserOne());
+        when(passwordEncoder.encode(anyString())).thenReturn("123456789");
 
         User user = userUseCase.create(getUserOne());
 
@@ -49,6 +52,7 @@ class UserUseCaseImplTest {
 
         verify(roleRepository).getById(ID);
         verify(uRepository).create(any(User.class));
+        verify(passwordEncoder).encode(anyString());
     }
 
     @Test
@@ -105,8 +109,8 @@ class UserUseCaseImplTest {
     @Test
     void delete() {
 
-       userUseCase.delete(ID);
+        userUseCase.delete(ID);
 
-       verify(uRepository).delete(ID);
+        verify(uRepository).delete(ID);
     }
 }

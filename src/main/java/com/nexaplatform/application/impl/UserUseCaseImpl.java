@@ -8,6 +8,10 @@ import com.nexaplatform.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,14 +19,16 @@ import java.util.List;
 @Log4j2
 @Service
 @RequiredArgsConstructor
-public class UserUseCaseImpl implements UserUseCase {
+public class UserUseCaseImpl implements UserUseCase, UserDetailsService {
 
     private final UserRepository uRepository;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public User create(User user) {
         List<Role> roles = user.getRoles().stream().map(this::getRole).toList();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRoles(roles);
         return uRepository.create(user);
     }
@@ -51,5 +57,11 @@ public class UserUseCaseImpl implements UserUseCase {
     @Override
     public void delete(Long id) {
         uRepository.delete(id);
+    }
+
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return uRepository.findByEmail(username);
     }
 }

@@ -62,6 +62,10 @@ public abstract class UserProvider {
                 .phoneNumber(PHONE_NUMBER_ONE)
                 .status(UserStatus.ACTIVE)
                 .roles(List.of(getRoleDtoOutOne(), getRoleDtoOutTwo()))
+                .accountNonExpired(true)
+                .accountNonLocked(true)
+                .enabled(true)
+                .credentialsNonExpired(true)
                 .build();
     }
 
@@ -75,6 +79,10 @@ public abstract class UserProvider {
                 .phoneNumber(PHONE_NUMBER_TWO)
                 .status(UserStatus.ACTIVE)
                 .roles(List.of(getRoleDtoOutOne(), getRoleDtoOutTwo()))
+                .accountNonExpired(true)
+                .accountNonLocked(true)
+                .enabled(true)
+                .credentialsNonExpired(true)
                 .build();
     }
 
@@ -88,6 +96,10 @@ public abstract class UserProvider {
                 .phoneNumber(PHONE_NUMBER_ONE)
                 .status(UserStatus.ACTIVE)
                 .roles(List.of(getRoleOne(), getRoleTwo()))
+                .accountNonExpired(true)
+                .accountNonLocked(true)
+                .enabled(true)
+                .credentialsNonExpired(true)
                 .build();
     }
 
@@ -101,6 +113,10 @@ public abstract class UserProvider {
                 .phoneNumber(PHONE_NUMBER_TWO)
                 .status(UserStatus.ACTIVE)
                 .roles(List.of(getRoleOne(), getRoleTwo()))
+                .accountNonExpired(true)
+                .accountNonLocked(true)
+                .enabled(true)
+                .credentialsNonExpired(true)
                 .build();
     }
 
@@ -113,6 +129,10 @@ public abstract class UserProvider {
                 .phoneNumber(PHONE_NUMBER_ONE)
                 .status(UserStatus.ACTIVE)
                 .roles(List.of(getRoleEntityOne(), getRoleEntityTwo()))
+                .accountNonExpired(true)
+                .accountNonLocked(true)
+                .enabled(true)
+                .credentialsNonExpired(true)
                 .build();
     }
 
@@ -125,6 +145,10 @@ public abstract class UserProvider {
                 .phoneNumber(PHONE_NUMBER_TWO)
                 .status(UserStatus.ACTIVE)
                 .roles(List.of(getRoleEntityOne(), getRoleEntityTwo()))
+                .accountNonExpired(true)
+                .accountNonLocked(true)
+                .enabled(true)
+                .credentialsNonExpired(true)
                 .build();
     }
 }
