@@ -1,5 +1,6 @@
 package com.nexaplatform.infrastructura.db.postgres.repositories.impl;
 
+import com.nexaplatform.domain.exception.EntityNotFoundException;
 import com.nexaplatform.domain.models.AuthenticationMethod;
 import com.nexaplatform.infrastructura.db.postgres.entities.AuthenticationMethodEntity;
 import com.nexaplatform.infrastructura.db.postgres.mappers.AuthenticationMethodEntityMapper;
@@ -14,10 +15,10 @@ import org.springframework.data.domain.*;
 import java.util.List;
 import java.util.Optional;
 
+import static com.nexaplatform.domain.errors.Error.AUTHORIZATION_METHOD_NOT_FOUND;
 import static com.nexaplatform.providers.authentication.AuthenticationMethodProvider.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
@@ -98,6 +99,22 @@ class AuthenticationMethodRepositoryImplTest {
     }
 
     @Test
+    void getById_Not_Found() {
+
+        when(repositoryAdapter.findById(3L)).thenReturn(Optional.empty());
+
+        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,
+                () -> authenticationMethodRepository.getById(3L)
+        );
+
+        assertNotNull(ex);
+        assertEquals(AUTHORIZATION_METHOD_NOT_FOUND.getCode(), ex.getCode());
+        assertEquals(String.format(AUTHORIZATION_METHOD_NOT_FOUND.getMessage(), 3L), ex.getMessage());
+
+        verify(repositoryAdapter).findById(anyLong());
+    }
+
+    @Test
     void update() {
 
         when(repositoryAdapter.findById(anyLong())).thenReturn(Optional.of(getAuthenticationMethodEntityOne()));
@@ -112,7 +129,6 @@ class AuthenticationMethodRepositoryImplTest {
         assertThat(getAuthenticationMethodTwo().withId(1L))
                 .usingRecursiveComparison()
                 .isEqualTo(authenticationMethod);
-
     }
 
     @Test
