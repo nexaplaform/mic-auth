@@ -1,6 +1,16 @@
-spring:
-  application:
-    name: mic-auth
-
 server:
-  port: 60001
+  port: 9001
+
+api:
+  title: Documentation of Auth-microservices
+  version: v1.0.0
+  description: This is the documentation related to the administration of the user microservice
+
+spring:
+  profiles:
+    active: ${ENV:local}
+
+  springdoc:
+    show-actuator: true
+    packagesToScan:
+      - com.nexaplatform.api
