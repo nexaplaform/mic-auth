@@ -99,7 +99,7 @@ class AuthenticationMethodRepositoryImplTest {
     }
 
     @Test
-    void getById_Not_Found() {
+    void getById_NotFound() {
 
         when(repositoryAdapter.findById(3L)).thenReturn(Optional.empty());
 
@@ -140,6 +140,22 @@ class AuthenticationMethodRepositoryImplTest {
         authenticationMethodRepository.delete(anyLong());
 
         verify(mapper).toDomain(any(AuthenticationMethodEntity.class));
+        verify(repositoryAdapter).findById(anyLong());
+    }
+
+    @Test
+    void deleteById_NotFound() {
+
+        when(repositoryAdapter.findById(3L)).thenReturn(Optional.empty());
+
+        EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,
+                () -> authenticationMethodRepository.delete(3L)
+        );
+
+        assertNotNull(ex);
+        assertEquals(AUTHORIZATION_METHOD_NOT_FOUND.getCode(), ex.getCode());
+        assertEquals(String.format(AUTHORIZATION_METHOD_NOT_FOUND.getMessage(), 3L), ex.getMessage());
+
         verify(repositoryAdapter).findById(anyLong());
     }
 }
