@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1/login")
-@Tag(name = "Login operations", description = "Operations related to login.")
+@Tag(name = "Login operations.", description = "Operations related to login.")
 public class LoginController {
-    
+
     @GetMapping
     public ResponseEntity<String> login() {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
