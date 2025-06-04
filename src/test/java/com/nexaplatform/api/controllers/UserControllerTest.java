@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class UserControllerIT extends BaseIntegration {
+class UserControllerTest extends BaseIntegration {
 
     @Autowired
     protected UserRepositoryAdapter uRepository;
