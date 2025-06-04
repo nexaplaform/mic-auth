@@ -66,10 +66,22 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/v1/roles/**", "/v1/users/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers(
+                                "/v1/authenticationmethod/**",
+                                "/v1/roles/**",
+                                "/v1/users/**",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html")
+                        .permitAll()
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.ignoringRequestMatchers(
-                        "/v1/roles/**", "/v1/users/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html"))
+                        "/v1/authenticationmethod/**",
+                        "/v1/roles/**",
+                        "/v1/users/**",
+                        "/swagger-ui/**",
+                        "/v3/api-docs/**",
+                        "/swagger-ui.html"))
                 .formLogin(Customizer.withDefaults());
 
         return http.build();

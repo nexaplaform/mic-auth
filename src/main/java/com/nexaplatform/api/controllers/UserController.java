@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@Tag(name = "User Operations", description = "Operations related to user administration")
+@Tag(name = "User Operations.", description = "Operations related to user administration.")
 public class UserController implements BaseApi<UserDtoIn, UserDtoOut, Long> {
 
     private final UserDtoMapper mapper;
@@ -43,7 +43,8 @@ public class UserController implements BaseApi<UserDtoIn, UserDtoOut, Long> {
     }
 
     @Override
-    public ResponseEntity<Void> delete(Long id) {userUseCase.delete(id);
+    public ResponseEntity<Void> delete(Long id) {
+        userUseCase.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
