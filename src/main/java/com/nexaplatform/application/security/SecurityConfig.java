@@ -67,7 +67,7 @@ public class SecurityConfig {
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
-                                //"/v1/authenticationmethod/**",
+                                "/v1/authenticationmethod/**",
                                 "/v1/roles/**",
                                 "/v1/users/**",
                                 "/swagger-ui/**",
@@ -76,7 +76,7 @@ public class SecurityConfig {
                         .permitAll()
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.ignoringRequestMatchers(
-                        //"/v1/authenticationmethod/**",
+                        "/v1/authenticationmethod/**",
                         "/v1/roles/**",
                         "/v1/users/**",
                         "/swagger-ui/**",
