@@ -3,7 +3,6 @@ package com.nexaplatform.api.controllers;
 import com.nexaplatform.api.controllers.services.dto.out.AuthenticationMethodDtoOut;
 import com.nexaplatform.infrastructura.db.postgres.entities.AuthenticationMethodEntity;
 import com.nexaplatform.infrastructura.db.postgres.repositories.AuthenticationMethodRepositoryAdapter;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,36 +19,26 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ClientAuthenticationMethodControllerTest extends BaseIntegration {
 
+    public static final String ROLE_ADMIN = "ROLE_ADMIN";
+    public static final String POST_AUTHENTICATIONMETHOD = "/v1/authenticationmethod";
+    public static final String UPDATE_AUTHENTICATIONMETHOD = "/v1/authenticationmethod/1";
+    public static final String DELETE_AUTHENTICATIONMETHOD = "/v1/authenticationmethod/1";
+    public static final String GET_AUTHENTICATIONMETHOD_BY_ID = "/v1/authenticationmethod/1";
+    public static final String AUTHENTICATIONMETHOD_PAGE_0_SIZE_10_SORT_ASC = "/v1/authenticationmethod?page=0&size=10&sort=ASC";
+
     @Autowired
     private WebTestClient webTestClient;
 
     @Autowired
     private AuthenticationMethodRepositoryAdapter repositoryAdapter;
 
-    @Autowired
-    private JwtTestUtil jwtTestUtil;
-
-    private String adminToken;
-    private String userToken;
-    private String noAuthToken;
-
-    @BeforeEach
-    void setup() {
-        // Genera un token con el rol "ADMIN" para tus tests
-        adminToken = jwtTestUtil.getToken("testAdmin", List.of("ROLE_ADMIN"));
-        // Genera un token con el rol "USER" si lo necesitas
-        userToken = jwtTestUtil.getToken("testUser", List.of("ROLE_USER"));
-        // Genera un token sin roles específicos si necesitas probar permisos limitados
-        noAuthToken = jwtTestUtil.getToken("testNoAuth", List.of());
-    }
-
     @Test
     void create() {
         AuthenticationMethodDtoOut response = webTestClient
                 .post()
-                .uri("/v1/authenticationmethod")
+                .uri(POST_AUTHENTICATIONMETHOD)
                 .contentType(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken)
+                .header(HttpHeaders.AUTHORIZATION, getToken(List.of(ROLE_ADMIN)))
                 .bodyValue(getAuthenticationMethodDtoInOne())
                 .exchange()
                 .expectStatus().isCreated()
@@ -74,7 +63,8 @@ class ClientAuthenticationMethodControllerTest extends BaseIntegration {
 
         List<AuthenticationMethodDtoOut> response = webTestClient
                 .get()
-                .uri("/v1/authenticationmethod?page=0&size=10&sort=ASC")
+                .uri(AUTHENTICATIONMETHOD_PAGE_0_SIZE_10_SORT_ASC)
+                .header(HttpHeaders.AUTHORIZATION, getToken(List.of(ROLE_ADMIN)))
                 .exchange()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
                 .expectStatus().isOk()
@@ -100,7 +90,8 @@ class ClientAuthenticationMethodControllerTest extends BaseIntegration {
 
         AuthenticationMethodDtoOut response = webTestClient
                 .get()
-                .uri("/v1/authenticationmethod/1")
+                .uri(GET_AUTHENTICATIONMETHOD_BY_ID)
+                .header(HttpHeaders.AUTHORIZATION, getToken(List.of(ROLE_ADMIN)))
                 .exchange()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
                 .expectStatus().isOk()
@@ -121,8 +112,9 @@ class ClientAuthenticationMethodControllerTest extends BaseIntegration {
 
         AuthenticationMethodDtoOut response = webTestClient
                 .put()
-                .uri("/v1/authenticationmethod/1")
+                .uri(UPDATE_AUTHENTICATIONMETHOD)
                 .bodyValue(getAuthenticationMethodDtoInTwo())
+                .header(HttpHeaders.AUTHORIZATION, getToken(List.of(ROLE_ADMIN)))
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -144,7 +136,8 @@ class ClientAuthenticationMethodControllerTest extends BaseIntegration {
 
         webTestClient
                 .delete()
-                .uri("/v1/authenticationmethod/1")
+                .uri(DELETE_AUTHENTICATIONMETHOD)
+                .header(HttpHeaders.AUTHORIZATION, getToken(List.of(ROLE_ADMIN)))
                 .exchange()
                 .expectStatus().isNoContent();
     }

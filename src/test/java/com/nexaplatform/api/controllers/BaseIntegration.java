@@ -25,7 +25,14 @@ import java.util.List;
 public abstract class BaseIntegration {
 
     @Autowired
+    private JwtTestUtil jwtTestUtil;
+
+    @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    public String getToken(List<String> roles) {
+        return jwtTestUtil.getToken("John Doe", roles);
+    }
 
     @BeforeEach
     @Transactional
