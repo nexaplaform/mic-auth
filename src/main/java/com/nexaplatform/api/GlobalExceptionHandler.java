@@ -377,25 +377,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorResponse, headers, httpStatus);
     }
 
-    /**
-     * Handles all other uncaught exceptions.
-     * Logs the exception and returns a 500 Internal Server Error.
-     */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleAllOtherExceptions(Exception ex, WebRequest request) {
-        
-        log.error("Ocurrio un error inesperado al procesar la solicitud {}: {}",
-                request.getDescription(true).replace(URI, ""),
-                ex.getMessage(),
-                ex);
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .code(ERROR_CODE_INTERNAL_ERROR)
-                .message(ERROR_MESSAGE_INTERNAL_ERROR)
-                .details(List.of("Error details: " + ex.getMessage()))
-                .timeStamp(ZonedDateTime.now())
-                .build();
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+//    /**
+//     * Handles all other uncaught exceptions.
+//     * Logs the exception and returns a 500 Internal Server Error.
+//     */
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<ErrorResponse> handleAllOtherExceptions(Exception ex, WebRequest request) {
+//
+//        log.error("Ocurrio un error inesperado al procesar la solicitud {}: {}",
+//                request.getDescription(true).replace(URI, ""),
+//                ex.getMessage(),
+//                ex);
+//
+//        ErrorResponse errorResponse = ErrorResponse.builder()
+//                .code(ERROR_CODE_INTERNAL_ERROR)
+//                .message(ERROR_MESSAGE_INTERNAL_ERROR)
+//                .details(List.of("Error details: " + ex.getMessage()))
+//                .timeStamp(ZonedDateTime.now())
+//                .build();
+//
+//        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
 }

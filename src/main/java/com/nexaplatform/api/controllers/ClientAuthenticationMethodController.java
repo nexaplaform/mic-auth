@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,6 +28,7 @@ public class ClientAuthenticationMethodController implements
     private final ClientAuthenticationMethodUseCase useCase;
 
     @Override
+    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN')")
     public ResponseEntity<AuthenticationMethodDtoOut> create(AuthenticationMethodDtoIn dto) {
         return new ResponseEntity<>(mapper.toDtoOut(useCase.create(mapper.toDomain(dto))), HttpStatus.CREATED);
     }
