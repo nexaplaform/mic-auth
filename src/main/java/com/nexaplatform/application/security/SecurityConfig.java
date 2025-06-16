@@ -40,7 +40,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    public static String RSA_KEY_ID = UUID.randomUUID().toString();
     private final PasswordEncoder passwordEncoder;
+
+    @Bean
+    public KeyPair rsaKeyPair() {
+        return generateRsaKey();
+    }
 
     @Bean
     @Order(1)
@@ -67,7 +73,7 @@ public class SecurityConfig {
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
-                                "/v1/authenticationmethod/**",
+                                //"/v1/authenticationmethod/**",
                                 "/v1/roles/**",
                                 "/v1/users/**",
                                 "/swagger-ui/**",
@@ -76,7 +82,7 @@ public class SecurityConfig {
                         .permitAll()
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.ignoringRequestMatchers(
-                        "/v1/authenticationmethod/**",
+                        //"/v1/authenticationmethod/**",
                         "/v1/roles/**",
                         "/v1/users/**",
                         "/swagger-ui/**",
@@ -105,13 +111,13 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JWKSource<SecurityContext> jwkSource() {
-        KeyPair keyPair = generateRsaKey();
-        RSAPublicKey publicKey = (RSAPublicKey) keyPair.getPublic();
-        RSAPrivateKey privateKey = (RSAPrivateKey) keyPair.getPrivate();
+    public JWKSource<SecurityContext> jwkSource(KeyPair rsaKeyPair) {
+        RSAPublicKey publicKey = (RSAPublicKey) rsaKeyPair.getPublic();
+        RSAPrivateKey privateKey = (RSAPrivateKey) rsaKeyPair.getPrivate();
+
         RSAKey rsaKey = new RSAKey.Builder(publicKey)
                 .privateKey(privateKey)
-                .keyID(UUID.randomUUID().toString())
+                .keyID(RSA_KEY_ID) // Asegúrate de que este RSA_KEY_ID sea el mismo que usa JwtTestUtil
                 .build();
         JWKSet jwkSet = new JWKSet(rsaKey);
         return new ImmutableJWKSet<>(jwkSet);

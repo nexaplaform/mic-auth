@@ -3,7 +3,7 @@ package com.nexaplatform.api.controllers;
 import com.nexaplatform.api.controllers.services.dto.out.AuthenticationMethodDtoOut;
 import com.nexaplatform.infrastructura.db.postgres.entities.AuthenticationMethodEntity;
 import com.nexaplatform.infrastructura.db.postgres.repositories.AuthenticationMethodRepositoryAdapter;
-import com.nimbusds.jose.KeySourceException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,14 +26,30 @@ class ClientAuthenticationMethodControllerTest extends BaseIntegration {
     @Autowired
     private AuthenticationMethodRepositoryAdapter repositoryAdapter;
 
+    @Autowired
+    private JwtTestUtil jwtTestUtil;
+
+    private String adminToken;
+    private String userToken;
+    private String noAuthToken;
+
+    @BeforeEach
+    void setup() {
+        // Genera un token con el rol "ADMIN" para tus tests
+        adminToken = jwtTestUtil.getToken("testAdmin", List.of("ROLE_ADMIN"));
+        // Genera un token con el rol "USER" si lo necesitas
+        userToken = jwtTestUtil.getToken("testUser", List.of("ROLE_USER"));
+        // Genera un token sin roles específicos si necesitas probar permisos limitados
+        noAuthToken = jwtTestUtil.getToken("testNoAuth", List.of());
+    }
 
     @Test
-    void create() throws KeySourceException {
+    void create() {
         AuthenticationMethodDtoOut response = webTestClient
                 .post()
                 .uri("/v1/authenticationmethod")
                 .contentType(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + adminToken)
                 .bodyValue(getAuthenticationMethodDtoInOne())
                 .exchange()
                 .expectStatus().isCreated()
