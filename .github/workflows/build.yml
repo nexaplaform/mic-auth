@@ -28,11 +28,6 @@ jobs:
           echo "${{ secrets.MAVEN_SETTINGS_XML }}" > ~/.m2/settings.xml
         shell: bash
 
-      # --- NUEVO PASO DE DEPURACIÓN ---
-      - name: Verify settings.xml content
-        run: cat ~/.m2/settings.xml
-      # -------------------------------
-
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
