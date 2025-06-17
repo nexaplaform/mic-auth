@@ -24,6 +24,14 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public abstract class BaseIntegration {
 
+    protected static final String ROLE_ADMIN = "ROLE_ADMIN";
+    protected static final String POST_AUTHENTICATIONMETHOD = "/v1/authenticationmethod";
+    protected static final String UPDATE_AUTHENTICATIONMETHOD = "/v1/authenticationmethod/1";
+    protected static final String DELETE_AUTHENTICATIONMETHOD = "/v1/authenticationmethod/1";
+    protected static final String GET_AUTHENTICATIONMETHOD_BY_ID = "/v1/authenticationmethod/1";
+    protected static final String AUTHENTICATIONMETHOD_PAGE_0_SIZE_10_SORT_ASC = "/v1/authenticationmethod?page=0&size=10&sort=ASC";
+    protected static final String NO_TIENES_LOS_PERMISOS_NECESARIOS = "Acceso denegado: No tienes los permisos necesarios.";
+
     @Autowired
     private JwtTestUtil jwtTestUtil;
 

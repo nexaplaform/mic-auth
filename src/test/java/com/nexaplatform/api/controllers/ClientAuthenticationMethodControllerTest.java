@@ -1,6 +1,7 @@
 package com.nexaplatform.api.controllers;
 
 import com.nexaplatform.api.controllers.services.dto.out.AuthenticationMethodDtoOut;
+import com.nexaplatform.api.controllers.services.dto.out.ErrorResponse;
 import com.nexaplatform.infrastructura.db.postgres.entities.AuthenticationMethodEntity;
 import com.nexaplatform.infrastructura.db.postgres.repositories.AuthenticationMethodRepositoryAdapter;
 import org.junit.jupiter.api.Test;
@@ -12,20 +13,15 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.util.List;
 
+import static com.nexaplatform.domain.exception.CodeError.ERROR_CODE_ACCESS_DENIED;
 import static com.nexaplatform.providers.authentication.AuthenticationMethodProvider.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ClientAuthenticationMethodControllerTest extends BaseIntegration {
-
-    public static final String ROLE_ADMIN = "ROLE_ADMIN";
-    public static final String POST_AUTHENTICATIONMETHOD = "/v1/authenticationmethod";
-    public static final String UPDATE_AUTHENTICATIONMETHOD = "/v1/authenticationmethod/1";
-    public static final String DELETE_AUTHENTICATIONMETHOD = "/v1/authenticationmethod/1";
-    public static final String GET_AUTHENTICATIONMETHOD_BY_ID = "/v1/authenticationmethod/1";
-    public static final String AUTHENTICATIONMETHOD_PAGE_0_SIZE_10_SORT_ASC = "/v1/authenticationmethod?page=0&size=10&sort=ASC";
-
+    
     @Autowired
     private WebTestClient webTestClient;
 
@@ -50,6 +46,25 @@ class ClientAuthenticationMethodControllerTest extends BaseIntegration {
         assertThat(getAuthenticationMethodDtoOutOne())
                 .usingRecursiveComparison()
                 .isEqualTo(response);
+    }
+
+    @Test
+    void create_403() {
+        ErrorResponse response = webTestClient
+                .post()
+                .uri(POST_AUTHENTICATIONMETHOD)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getToken(List.of()))
+                .bodyValue(getAuthenticationMethodDtoInOne())
+                .exchange()
+                .expectStatus().isForbidden()
+                .expectBody(ErrorResponse.class)
+                .returnResult()
+                .getResponseBody();
+
+        assertNotNull(response);
+        assertEquals(ERROR_CODE_ACCESS_DENIED, response.getCode());
+        assertEquals(NO_TIENES_LOS_PERMISOS_NECESARIOS, response.getMessage());
     }
 
     @Test

@@ -13,6 +13,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -65,6 +66,29 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String ERROR_MESSAGE_TYPE_MISMATCH = "El tipo de parámetro de solicitud no coincide";
     private static final String ERROR_MESSAGE_MISSING_PARAMETER = "Falta el parámetro de solicitud requerido";
     private static final String ERROR_MESSAGE_INTERNAL_ERROR = "Ha ocurrido un error inesperado, revise el log para obtener mas detalles sobre el error";
+    private static final String ERROR_MESSAGE_ACCESS_DENIED = "Acceso denegado: No tienes los permisos necesarios.";
+
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+
+        logDetail(ex.getClass().getSimpleName(), request, ex.getMessage());
+
+        List<String> details = new ArrayList<>();
+        details.add(String.format(DETAIL_ENDPOINT_FORMAT, request.getDescription(false)
+                .replace(URI, "")));
+
+        details.add("Causa: " + ex.getMessage());
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .code(ERROR_CODE_ACCESS_DENIED)
+                .message(ERROR_MESSAGE_ACCESS_DENIED)
+                .details(details)
+                .timeStamp(ZonedDateTime.now())
+                .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+    }
 
 
     /**
