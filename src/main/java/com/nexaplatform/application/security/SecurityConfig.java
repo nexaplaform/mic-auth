@@ -52,7 +52,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    public static String RSA_KEY_ID = UUID.randomUUID().toString();
+    private static final String LOGIN = "/login";
+    public static final String RSA_KEY_ID = UUID.randomUUID().toString();
     private final PasswordEncoder passwordEncoder;
 
     @Bean
@@ -74,7 +75,7 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(exceptions -> exceptions
                         .defaultAuthenticationEntryPointFor(
-                                new LoginUrlAuthenticationEntryPoint("/login"),
+                                new LoginUrlAuthenticationEntryPoint(LOGIN),
                                 new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
                         ));
         return http.build();
@@ -85,7 +86,7 @@ public class SecurityConfig {
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, "/v1/users").permitAll()
-                        .requestMatchers("/login").permitAll()
+                        .requestMatchers(LOGIN).permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
@@ -97,7 +98,7 @@ public class SecurityConfig {
                         "/v3/api-docs/**",
                         "/swagger-ui.html"))
                 .formLogin(form ->
-                        form.loginPage("/login").permitAll())
+                        form.loginPage(LOGIN).permitAll())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
         return http.build();
     }

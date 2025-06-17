@@ -141,8 +141,8 @@ class UserRepositoryImplTest {
 
     @Test
     void update_throwsEntityNotFoundException_whenUserNotFound() {
-
         Long noExistsId = 2L;
+
         when(uRepository.findById(2L)).thenReturn(Optional.empty());
 
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
@@ -215,7 +215,7 @@ class UserRepositoryImplTest {
         assertEquals(1, actualUsers.size());
         assertEquals(expectedUsers, actualUsers);
 
-        verify(uRepository).findAll(eq(expectedPageable));
-        verify(uMapper).toDomainList(eq(mockUserEntities));
+        verify(uRepository).findAll(expectedPageable);
+        verify(uMapper).toDomainList(mockUserEntities);
     }
 }
