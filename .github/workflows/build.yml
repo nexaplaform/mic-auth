@@ -57,11 +57,10 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
-          # --- AÑADE -X PARA DEPURACIÓN DETALLADA ---
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=nexaplaform_mic-core \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
             -Dsonar.pullrequest.branch=${{ github.head_ref }} \
             -Dsonar.pullrequest.base=${{ github.base_ref }} \
-            -X # <--- AÑADE ESTO
+            -X
