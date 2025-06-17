@@ -22,17 +22,25 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Create Maven settings.xml from secret
-        run: |
-          mkdir -p ~/.m2
-          echo "${{ secrets.MAVEN_SETTINGS_XML }}" > ~/.m2/settings.xml
-        shell: bash
+      # --- ELIMINA ESTE PASO ---
+      # - name: Create Maven settings.xml from secret
+      #   run: |
+      #     mkdir -p ~/.m2
+      #     echo "${{ secrets.MAVEN_SETTINGS_XML }}" > ~/.m2/settings.xml
+      #   shell: bash
+      # ------------------------
 
-      - name: Set up JDK 21
+      # --- Ajusta este paso ---
+      - name: Set up JDK 21 and Maven settings for GitHub Packages
         uses: actions/setup-java@v4
         with:
           java-version: 21
           distribution: 'temurin'
+          # Estas 3 líneas son la clave para el settings.xml:
+          server-id: github # El 'id' de tu repositorio en pom.xml
+          username: ${{ github.actor }} # Tu usuario de GitHub
+          password: ${{ secrets.GITHUB_TOKEN }} # El token especial de GitHub Actions
+      # -----------------------
 
       - name: Cache SonarQube packages
         uses: actions/cache@v4
@@ -57,5 +65,5 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
             -Dsonar.pullrequest.branch=${{ github.head_ref }} \
-            -Dsonar.pullrequest.base=${{ github.base_ref }} \
+            -Dsonar.pullrequest.base=${{ github.base_ref }}
             -X
