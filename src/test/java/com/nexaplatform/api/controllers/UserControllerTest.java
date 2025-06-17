@@ -6,24 +6,28 @@ import com.nexaplatform.api.controllers.services.dto.out.UserDtoOut;
 import com.nexaplatform.infrastructura.db.postgres.entities.RoleEntity;
 import com.nexaplatform.infrastructura.db.postgres.repositories.RoleRepositoryAdapter;
 import com.nexaplatform.infrastructura.db.postgres.repositories.UserRepositoryAdapter;
+import com.nexaplatform.shared.BaseIntegration;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.util.List;
 
 import static com.nexaplatform.domain.errors.Error.USER_NOT_FOUND;
+import static com.nexaplatform.providers.authentication.AuthenticationMethodProvider.ROLE_ADMIN;
 import static com.nexaplatform.providers.user.RoleProvider.getRoleEntityOne;
 import static com.nexaplatform.providers.user.RoleProvider.getRoleEntityTwo;
 import static com.nexaplatform.providers.user.UserProvider.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class UserControllerIT extends BaseIntegration {
+class UserControllerTest extends BaseIntegration {
+
+    private static final String ID = "/1";
+    public static final String PATH_USERS = "v1/users";
 
     @Autowired
     protected UserRepositoryAdapter uRepository;
@@ -45,7 +49,8 @@ class UserControllerIT extends BaseIntegration {
         UserDtoIn dtoIn = getUserDtoInOne();
         UserDtoOut expectedDtoOut = webTestClient
                 .post()
-                .uri(BASE_PATH)
+                .uri(PATH_USERS)
+                .header(HttpHeaders.AUTHORIZATION, getToken(List.of(ROLE_ADMIN)))
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(dtoIn)
                 .exchange()
@@ -71,7 +76,8 @@ class UserControllerIT extends BaseIntegration {
 
         List<UserDtoOut> expectedDtoOut = webTestClient
                 .get()
-                .uri(BASE_PATH + "?page=0&size=10&sort=ASC")
+                .uri(PATH_USERS + "?page=0&size=10&sort=ASC")
+                .header(HttpHeaders.AUTHORIZATION, getToken(List.of(ROLE_ADMIN)))
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -92,7 +98,8 @@ class UserControllerIT extends BaseIntegration {
 
         UserDtoOut expectedDtoOut = webTestClient
                 .get()
-                .uri(BASE_PATH + "/1")
+                .uri(PATH_USERS + ID)
+                .header(HttpHeaders.AUTHORIZATION, getToken(List.of(ROLE_ADMIN)))
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -114,7 +121,8 @@ class UserControllerIT extends BaseIntegration {
 
         UserDtoOut expectedDtoOut = webTestClient
                 .put()
-                .uri(BASE_PATH + "/1")
+                .uri(PATH_USERS + ID)
+                .header(HttpHeaders.AUTHORIZATION, getToken(List.of(ROLE_ADMIN)))
                 .bodyValue(getUserDtoInTwo())
                 .exchange()
                 .expectStatus().isOk()
@@ -135,7 +143,8 @@ class UserControllerIT extends BaseIntegration {
         uRepository.save(getUserEntityOne().withRoles(roles));
         webTestClient
                 .delete()
-                .uri(BASE_PATH + "/1")
+                .uri(PATH_USERS + ID)
+                .header(HttpHeaders.AUTHORIZATION, getToken(List.of(ROLE_ADMIN)))
                 .exchange()
                 .expectStatus().isNoContent();
 
@@ -150,7 +159,8 @@ class UserControllerIT extends BaseIntegration {
         uRepository.save(getUserEntityOne().withRoles(roles));
         ErrorResponse errorResponse = webTestClient
                 .delete()
-                .uri(BASE_PATH + "/" + id)
+                .uri(PATH_USERS + "/" + id)
+                .header(HttpHeaders.AUTHORIZATION, getToken(List.of(ROLE_ADMIN)))
                 .exchange()
                 .expectStatus().isNotFound()
                 .expectBody(ErrorResponse.class)

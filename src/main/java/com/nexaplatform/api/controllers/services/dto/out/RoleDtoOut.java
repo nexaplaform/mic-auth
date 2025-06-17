@@ -14,7 +14,7 @@ public class RoleDtoOut {
 
     @Schema(example = "1")
     private Long id;
-    @Schema(example = "ADMIN")
+    @Schema(example = "ROLE_USER")
     private String name;
     @Schema(example = "Role admin")
     private String description;

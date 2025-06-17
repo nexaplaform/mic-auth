@@ -5,11 +5,13 @@ import com.nexaplatform.api.controllers.services.dto.in.UserDtoIn;
 import com.nexaplatform.api.controllers.services.dto.out.UserDtoOut;
 import com.nexaplatform.api.controllers.services.mappers.UserDtoMapper;
 import com.nexaplatform.application.UserUseCase;
+import com.nexaplatform.domain.utils.ApplicationRole;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -28,6 +30,7 @@ public class UserController implements BaseApi<UserDtoIn, UserDtoOut, Long> {
     }
 
     @Override
+    @PreAuthorize("hasAnyAuthority(" + "'" + ApplicationRole.ADMIN + "'" + ")")
     public ResponseEntity<List<UserDtoOut>> getPaginated(Integer page, Integer size, Sort.Direction sort) {
         return new ResponseEntity<>(mapper.toDtoList(userUseCase.getPaginated(page, size, sort)), HttpStatus.OK);
     }
@@ -38,11 +41,13 @@ public class UserController implements BaseApi<UserDtoIn, UserDtoOut, Long> {
     }
 
     @Override
+    @PreAuthorize("hasAnyAuthority(" + "'" + ApplicationRole.ADMIN + "'" + ")")
     public ResponseEntity<UserDtoOut> update(Long id, UserDtoIn dto) {
         return new ResponseEntity<>(mapper.toDto(userUseCase.update(id, mapper.toDomain(dto))), HttpStatus.OK);
     }
 
     @Override
+    @PreAuthorize("hasAnyAuthority(" + "'" + ApplicationRole.ADMIN + "'" + ")")
     public ResponseEntity<Void> delete(Long id) {
         userUseCase.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

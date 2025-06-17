@@ -9,9 +9,9 @@ import lombok.*;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoleDtoIn  {
+public class RoleDtoIn {
 
-    @Schema(example = "admin")
+    @Schema(example = "ROLE_USER")
     private String name;
     @Schema(example = "User admin")
     private String description;

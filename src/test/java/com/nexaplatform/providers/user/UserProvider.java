@@ -28,7 +28,6 @@ public abstract class UserProvider {
     public static final String PASSWORD_TWO = "mysecret!";
     public static final String PHONE_NUMBER_TWO = "123-555-0103";
     public static final long ID = 1L;
-    public static final String BASE_PATH = "v1/users";
 
     public static UserDtoIn getUserDtoInOne() {
         return UserDtoIn.builder()
