@@ -3,36 +3,41 @@ package com.nexaplatform.api.controllers;
 import com.nexaplatform.api.controllers.services.dto.out.ErrorResponse;
 import com.nexaplatform.api.controllers.services.dto.out.RoleDtoOut;
 import com.nexaplatform.infrastructura.db.postgres.repositories.RoleRepositoryAdapter;
+import com.nexaplatform.shared.BaseIntegration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.util.List;
 
 import static com.nexaplatform.domain.errors.Error.ROLE_NOT_FOUND;
+import static com.nexaplatform.providers.authentication.AuthenticationMethodProvider.ROLE_ADMIN;
 import static com.nexaplatform.providers.user.RoleProvider.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class RoleControllerTest extends BaseIntegration {
 
-    @Autowired
-    private RoleRepositoryAdapter roleRepository;
+    public static final String ID = "/1";
+    public static final String PATH_ROLES = "/v1/roles";
 
     @Autowired
     private WebTestClient webTestClient;
+
+    @Autowired
+    private RoleRepositoryAdapter roleRepository;
 
     @Test
     void create() {
 
         RoleDtoOut response = webTestClient
                 .post()
-                .uri("/v1/roles")
+                .uri(PATH_ROLES)
                 .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getToken(List.of(ROLE_ADMIN)))
                 .bodyValue(getRoleDtoInOne())
                 .exchange()
                 .expectStatus().isCreated()
@@ -53,7 +58,8 @@ class RoleControllerTest extends BaseIntegration {
 
         List<RoleDtoOut> response = webTestClient
                 .get()
-                .uri("/v1/roles?page=0&size=10&sort=ASC")
+                .uri(PATH_ROLES + "?page=0&size=10&sort=ASC")
+                .header(HttpHeaders.AUTHORIZATION, getToken(List.of(ROLE_ADMIN)))
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -73,7 +79,8 @@ class RoleControllerTest extends BaseIntegration {
 
         RoleDtoOut response = webTestClient
                 .get()
-                .uri("/v1/roles/1")
+                .uri(PATH_ROLES + ID)
+                .header(HttpHeaders.AUTHORIZATION, getToken(List.of(ROLE_ADMIN)))
                 .exchange()
                 .expectStatus().isOk()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -91,7 +98,8 @@ class RoleControllerTest extends BaseIntegration {
 
         ErrorResponse response = webTestClient
                 .get()
-                .uri("/v1/roles/1")
+                .uri(PATH_ROLES + ID)
+                .header(HttpHeaders.AUTHORIZATION, getToken(List.of(ROLE_ADMIN)))
                 .exchange()
                 .expectStatus().isNotFound()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -99,9 +107,9 @@ class RoleControllerTest extends BaseIntegration {
                 .returnResult()
                 .getResponseBody();
 
-       assertNotNull(response);
-       assertEquals(ROLE_NOT_FOUND.getCode(), response.getCode());
-       assertEquals(String.format(ROLE_NOT_FOUND.getMessage(), 1), response.getMessage());
+        assertNotNull(response);
+        assertEquals(ROLE_NOT_FOUND.getCode(), response.getCode());
+        assertEquals(String.format(ROLE_NOT_FOUND.getMessage(), 1), response.getMessage());
     }
 
     @Test
@@ -111,8 +119,9 @@ class RoleControllerTest extends BaseIntegration {
 
         RoleDtoOut response = webTestClient
                 .put()
-                .uri("/v1/roles/1")
+                .uri(PATH_ROLES + ID)
                 .contentType(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, getToken(List.of(ROLE_ADMIN)))
                 .bodyValue(getRoleDtoInTwo())
                 .exchange()
                 .expectStatus().isOk()
@@ -132,7 +141,8 @@ class RoleControllerTest extends BaseIntegration {
         roleRepository.save(getRoleEntityOne());
 
         webTestClient.delete()
-                .uri("/v1/roles/1")
+                .uri(PATH_ROLES + ID)
+                .header(HttpHeaders.AUTHORIZATION, getToken(List.of(ROLE_ADMIN)))
                 .exchange()
                 .expectStatus().isNoContent();
     }
@@ -142,7 +152,8 @@ class RoleControllerTest extends BaseIntegration {
 
         ErrorResponse response = webTestClient
                 .delete()
-                .uri("/v1/roles/1")
+                .uri(PATH_ROLES + ID)
+                .header(HttpHeaders.AUTHORIZATION, getToken(List.of(ROLE_ADMIN)))
                 .exchange()
                 .expectStatus().isNotFound()
                 .expectBody(ErrorResponse.class)

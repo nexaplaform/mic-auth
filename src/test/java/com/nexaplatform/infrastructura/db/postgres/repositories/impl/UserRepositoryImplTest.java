@@ -38,7 +38,7 @@ class UserRepositoryImplTest {
 
     @Test
     void create_ok() {
-  
+
         User inputUser = getUserOne();
         UserEntity entityToSave = getUserEntityOne();
         User createdUser = getUserOne();
@@ -174,8 +174,7 @@ class UserRepositoryImplTest {
         verify(uMapper, times(1)).toDomain(toDomainArgumentCaptor.capture());
 
         UserEntity actualEntityPassedToToDomain = toDomainArgumentCaptor.getValue();
-        assertEquals(expectedEntity, actualEntityPassedToToDomain,
-                "La entidad pasada a uMapper.toDomain debe ser igual a la entidad esperada.");
+        assertEquals(expectedEntity, actualEntityPassedToToDomain);
     }
 
     @Test

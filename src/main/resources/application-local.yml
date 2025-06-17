@@ -16,3 +16,23 @@ spring:
   liquibase:
     enabled: true
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:9001
+  springdoc:
+    oauth2:
+      client-id: swagger-client
+      client-secret: swagger-secret
+
+#logging:
+#  level:
+#    root: DEBUG
+#    org:
+#      springframework:
+#        security: DEBUG
+#        security.web.authentication: DEBUG
+#        security.authentication: DEBUG
+#        security.access: DEBUG
+#        security.oauth2: DEBUG

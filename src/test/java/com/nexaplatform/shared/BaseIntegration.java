@@ -1,4 +1,4 @@
-package com.nexaplatform.api.controllers;
+package com.nexaplatform.shared;
 
 import com.nexaplatform.TestContainersConfiguration;
 import jakarta.transaction.Transactional;
@@ -8,6 +8,7 @@ import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
@@ -22,15 +23,8 @@ import java.util.List;
 @ExtendWith(SpringExtension.class)
 @Import(TestContainersConfiguration.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public abstract class BaseIntegration {
-
-    protected static final String ROLE_ADMIN = "ROLE_ADMIN";
-    protected static final String POST_AUTHENTICATIONMETHOD = "/v1/authenticationmethod";
-    protected static final String UPDATE_AUTHENTICATIONMETHOD = "/v1/authenticationmethod/1";
-    protected static final String DELETE_AUTHENTICATIONMETHOD = "/v1/authenticationmethod/1";
-    protected static final String GET_AUTHENTICATIONMETHOD_BY_ID = "/v1/authenticationmethod/1";
-    protected static final String AUTHENTICATIONMETHOD_PAGE_0_SIZE_10_SORT_ASC = "/v1/authenticationmethod?page=0&size=10&sort=ASC";
-    protected static final String NO_TIENES_LOS_PERMISOS_NECESARIOS = "Acceso denegado: No tienes los permisos necesarios.";
 
     @Autowired
     private JwtTestUtil jwtTestUtil;

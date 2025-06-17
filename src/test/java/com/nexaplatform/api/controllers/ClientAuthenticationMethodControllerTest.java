@@ -4,9 +4,9 @@ import com.nexaplatform.api.controllers.services.dto.out.AuthenticationMethodDto
 import com.nexaplatform.api.controllers.services.dto.out.ErrorResponse;
 import com.nexaplatform.infrastructura.db.postgres.entities.AuthenticationMethodEntity;
 import com.nexaplatform.infrastructura.db.postgres.repositories.AuthenticationMethodRepositoryAdapter;
+import com.nexaplatform.shared.BaseIntegration;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -19,9 +19,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class ClientAuthenticationMethodControllerTest extends BaseIntegration {
-    
+
+    public static final String ID = "/1";
+    public static final String PATH_AUTHENTICATIONMETHODS = "/v1/authenticationmethods";
+
     @Autowired
     private WebTestClient webTestClient;
 
@@ -32,7 +34,7 @@ class ClientAuthenticationMethodControllerTest extends BaseIntegration {
     void create() {
         AuthenticationMethodDtoOut response = webTestClient
                 .post()
-                .uri(POST_AUTHENTICATIONMETHOD)
+                .uri(PATH_AUTHENTICATIONMETHODS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getToken(List.of(ROLE_ADMIN)))
                 .bodyValue(getAuthenticationMethodDtoInOne())
@@ -52,7 +54,7 @@ class ClientAuthenticationMethodControllerTest extends BaseIntegration {
     void create_403() {
         ErrorResponse response = webTestClient
                 .post()
-                .uri(POST_AUTHENTICATIONMETHOD)
+                .uri(PATH_AUTHENTICATIONMETHODS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, getToken(List.of()))
                 .bodyValue(getAuthenticationMethodDtoInOne())
@@ -78,7 +80,7 @@ class ClientAuthenticationMethodControllerTest extends BaseIntegration {
 
         List<AuthenticationMethodDtoOut> response = webTestClient
                 .get()
-                .uri(AUTHENTICATIONMETHOD_PAGE_0_SIZE_10_SORT_ASC)
+                .uri(PATH_AUTHENTICATIONMETHODS + "?page=0&size=10&sort=ASC")
                 .header(HttpHeaders.AUTHORIZATION, getToken(List.of(ROLE_ADMIN)))
                 .exchange()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -105,7 +107,7 @@ class ClientAuthenticationMethodControllerTest extends BaseIntegration {
 
         AuthenticationMethodDtoOut response = webTestClient
                 .get()
-                .uri(GET_AUTHENTICATIONMETHOD_BY_ID)
+                .uri(PATH_AUTHENTICATIONMETHODS + ID)
                 .header(HttpHeaders.AUTHORIZATION, getToken(List.of(ROLE_ADMIN)))
                 .exchange()
                 .expectHeader().contentType(MediaType.APPLICATION_JSON)
@@ -127,7 +129,7 @@ class ClientAuthenticationMethodControllerTest extends BaseIntegration {
 
         AuthenticationMethodDtoOut response = webTestClient
                 .put()
-                .uri(UPDATE_AUTHENTICATIONMETHOD)
+                .uri(PATH_AUTHENTICATIONMETHODS + ID)
                 .bodyValue(getAuthenticationMethodDtoInTwo())
                 .header(HttpHeaders.AUTHORIZATION, getToken(List.of(ROLE_ADMIN)))
                 .accept(MediaType.APPLICATION_JSON)
@@ -151,7 +153,7 @@ class ClientAuthenticationMethodControllerTest extends BaseIntegration {
 
         webTestClient
                 .delete()
-                .uri(DELETE_AUTHENTICATIONMETHOD)
+                .uri(PATH_AUTHENTICATIONMETHODS + ID)
                 .header(HttpHeaders.AUTHORIZATION, getToken(List.of(ROLE_ADMIN)))
                 .exchange()
                 .expectStatus().isNoContent();

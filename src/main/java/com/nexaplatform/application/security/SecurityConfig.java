@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.Customizer;
@@ -83,21 +84,20 @@ public class SecurityConfig {
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.POST, "/v1/users").permitAll()
+                        .requestMatchers("/login").permitAll()
                         .requestMatchers(
-                                "/v1/roles/**",
-                                "/v1/users/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html")
                         .permitAll()
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.ignoringRequestMatchers(
-                        "/v1/roles/**",
-                        "/v1/users/**",
                         "/swagger-ui/**",
                         "/v3/api-docs/**",
                         "/swagger-ui.html"))
-                .formLogin(Customizer.withDefaults())
+                .formLogin(form ->
+                        form.loginPage("/login").permitAll())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
         return http.build();
     }
@@ -126,7 +126,7 @@ public class SecurityConfig {
 
         RSAKey rsaKey = new RSAKey.Builder(publicKey)
                 .privateKey(privateKey)
-                .keyID(RSA_KEY_ID) // Asegúrate de que este RSA_KEY_ID sea el mismo que usa JwtTestUtil
+                .keyID(RSA_KEY_ID)
                 .build();
         JWKSet jwkSet = new JWKSet(rsaKey);
         return new ImmutableJWKSet<>(jwkSet);
@@ -159,10 +159,7 @@ public class SecurityConfig {
     @Bean
     public Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-
         // grantedAuthoritiesConverter.setAuthorityPrefix("");
-
-
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(
                 new CustomJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter));

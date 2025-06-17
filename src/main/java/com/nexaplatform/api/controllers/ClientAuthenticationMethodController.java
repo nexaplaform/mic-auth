@@ -19,7 +19,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/authenticationmethod")
+@RequestMapping("/v1/authenticationmethods")
 @Tag(name = "Client Authentication Methods Operations.",
         description = "Operations related to Client Authentication Methods.")
 public class ClientAuthenticationMethodController implements

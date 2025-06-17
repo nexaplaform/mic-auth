@@ -1,4 +1,4 @@
-package com.nexaplatform.api.controllers;
+package com.nexaplatform.shared;
 
 import com.nexaplatform.application.security.SecurityConfig;
 import com.nexaplatform.domain.models.Role;

@@ -1,16 +1,14 @@
 package com.nexaplatform;
 
-import com.nexaplaform.core.api.configuration.OpenApiConfig;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@Import({OpenApiConfig.class})
+@ComponentScan(basePackages = {"com.nexaplatform", "com.nexaplaform.core"})
 public class MicAuthApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(MicAuthApplication.class, args);
     }
-
 }
