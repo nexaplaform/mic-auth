@@ -22,25 +22,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      # --- ELIMINA ESTE PASO ---
-      # - name: Create Maven settings.xml from secret
-      #   run: |
-      #     mkdir -p ~/.m2
-      #     echo "${{ secrets.MAVEN_SETTINGS_XML }}" > ~/.m2/settings.xml
-      #   shell: bash
-      # ------------------------
-
-      # --- Ajusta este paso ---
       - name: Set up JDK 21 and Maven settings for GitHub Packages
         uses: actions/setup-java@v4
         with:
           java-version: 21
           distribution: 'temurin'
-          # Estas 3 líneas son la clave para el settings.xml:
-          server-id: github # El 'id' de tu repositorio en pom.xml
-          username: ${{ github.actor }} # Tu usuario de GitHub
-          password: ${{ secrets.GITHUB_TOKEN }} # El token especial de GitHub Actions
-      # -----------------------
+          server-id: github
+          # ¡CORRECCIÓN AQUÍ!
+          server-username: ${{ github.actor }} # Usa server-username en lugar de username
+          server-password: ${{ secrets.GITHUB_TOKEN }} # Usa server-password en lugar de password
 
       - name: Cache SonarQube packages
         uses: actions/cache@v4
@@ -61,9 +51,9 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-            -Dsonar.projectKey=nexaplaform_mic-core \
+            -Dsonar.projectKey=nexaplaform_mic-auth \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} \
             -Dsonar.pullrequest.branch=${{ github.head_ref }} \
-            -Dsonar.pullrequest.base=${{ github.base_ref }}
+            -Dsonar.pullrequest.base=${{ github.base_ref }} \
             -X
