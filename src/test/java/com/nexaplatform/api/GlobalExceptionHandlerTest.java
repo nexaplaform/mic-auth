@@ -31,18 +31,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class GlobalExceptionHandlerTest {
 
-    private static final String ERROR_CODE_ACCESS_DENIED = "ACCESS_DENIED";
     private static final String ERROR_CODE_NOT_FOUND = "NOT_FOUND";
-    private static final String ERROR_CODE_RESOURCE_ALREADY_EXISTS = "RESOURCE_EXISTS";
-    private static final String ERROR_CODE_OPERATION_NOT_ALLOWED = "OP_NOT_ALLOWED";
-    private static final String ERROR_CODE_BUSINESS_RULE_VIOLATION = "BUSINESS_RULE_VIOLATION";
-    private static final String ERROR_CODE_METHOD_NOT_ALLOWED = "METHOD_NOT_ALLOWED";
-    private static final String ERROR_CODE_ARGUMENT_NOT_VALID = "ARG_NOT_VALID";
-    private static final String ERROR_CODE_MESSAGE_NOT_READABLE = "MSG_NOT_READABLE";
-    private static final String ERROR_CODE_JSON_MAPPING_ERROR = "JSON_MAPPING_ERROR";
-    private static final String ERROR_CODE_JSON_PARSE_ERROR = "JSON_PARSE_ERROR";
-    private static final String ERROR_CODE_TYPE_MISMATCH = "TYPE_MISMATCH";
-    private static final String ERROR_CODE_MISSING_PARAMETER = "MISSING_PARAM";
 
     @Mock
     private WebRequest webRequest;
@@ -245,11 +234,11 @@ class GlobalExceptionHandlerTest {
 
         HttpMessageNotReadableException ex = new HttpMessageNotReadableException(originalMessage, jsonMappingException, null);
         HttpStatusCode status = HttpStatus.BAD_REQUEST;
-        HttpHeaders httpHeaders = new HttpHeaders();
-        
+        HttpHeaders actualHttpHeaders = new HttpHeaders();
+
         when(webRequest.getDescription(false)).thenReturn("uri=/api/data");
 
-        ResponseEntity<Object> response = globalExceptionHandler.handleHttpMessageNotReadable(ex, httpHeaders, status, webRequest);
+        ResponseEntity<Object> response = globalExceptionHandler.handleHttpMessageNotReadable(ex, actualHttpHeaders, status, webRequest);
 
         assertNotNull(response);
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
