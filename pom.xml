@@ -17,13 +17,83 @@
 
     <description>Authorization project</description>
 
+    <repositories>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/nexaplaform/mic-core</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>central</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>github-plugins</id>
+            <name>GitHub Packages - Plugins</name>
+            <url>https://maven.pkg.github.com/nexaplaform/mic-core</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>central-plugins</id>
+            <url>https://repo.maven.apache.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
     <properties>
+        <sonar.organization>nexaplaform</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
         <jacoco.version>0.8.11</jacoco.version>
+
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-        <sonar.jacoco.reportPaths>${project.build.directory}/jacoco.exec</sonar.jacoco.reportPaths>
-        <sonar.jacoco.itReportPaths>${project.build.directory}/jacoco-it.exec</sonar.jacoco.itReportPaths>
-        <sonar.tests>src/test/java,src/it/java</sonar.tests>
+
+        <jacoco.ut.execution.data.file>${project.build.directory}/jacoco.exec</jacoco.ut.execution.data.file>
+        <jacoco.it.execution.data.file>${project.build.directory}/jacoco-it.exec</jacoco.it.execution.data.file>
+
+        <sonar.coverage.jacoco.xmlReportPaths>${project.reporting.outputDirectory}/jacoco-aggregate/jacoco.xml
+        </sonar.coverage.jacoco.xmlReportPaths>
+
+        <sonar.tests>src/test/java</sonar.tests>
+
+        <sonar.junit.reportPaths>
+            ${project.build.directory}/surefire-reports,${project.build.directory}/failsafe-reports
+        </sonar.junit.reportPaths>
+
+        <argLine>
+            -javaagent:${settings.localRepository}/org/jacoco/org.jacoco.agent/${jacoco.version}/org.jacoco.agent-${jacoco.version}-runtime.jar=destfile=${jacoco.ut.execution.data.file}
+        </argLine>
+
+        <failsafeArgLine>
+            -javaagent:${settings.localRepository}/org/jacoco/org.jacoco.agent/${jacoco.version}/org.jacoco.agent-${jacoco.version}-runtime.jar=destfile=${jacoco.it.execution.data.file}
+        </failsafeArgLine>
+
     </properties>
 
     <dependencies>
@@ -93,6 +163,10 @@
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
+                        <configuration>
+                            <destFile>${jacoco.ut.execution.data.file}</destFile>
+                            <propertyName>surefireArgLine</propertyName>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>prepare-agent-integration</id>
@@ -100,6 +174,10 @@
                         <goals>
                             <goal>prepare-agent-integration</goal>
                         </goals>
+                        <configuration>
+                            <destFile>${jacoco.it.execution.data.file}</destFile>
+                            <propertyName>failsafeArgLine</propertyName>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>report</id>
@@ -107,6 +185,10 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                        <configuration>
+                            <dataFile>${jacoco.ut.execution.data.file}</dataFile>
+                            <outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>report-integration</id>
@@ -114,6 +196,10 @@
                         <goals>
                             <goal>report-integration</goal>
                         </goals>
+                        <configuration>
+                            <dataFile>${jacoco.it.execution.data.file}</dataFile>
+                            <outputDirectory>${project.reporting.outputDirectory}/jacoco-it</outputDirectory>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>report-aggregate</id>
@@ -166,6 +252,29 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.11.0.3922</version>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sonar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sonar.projectKey>nexaplaform</sonar.projectKey>
+                    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
+                    <sonar.sources>${project.basedir}/src/main/java</sonar.sources>
+                    <sonar.java.binaries>${project.build.directory}/classes</sonar.java.binaries>
+                    <sonar.java.test.binaries>${project.build.directory}/test-classes</sonar.java.test.binaries>
+
+                </configuration>
             </plugin>
         </plugins>
     </build>
