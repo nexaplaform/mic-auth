@@ -54,6 +54,8 @@ public class SecurityConfig {
 
     private static final String LOGIN = "/login";
     public static final String RSA_KEY_ID = UUID.randomUUID().toString();
+    private static final String SECRET = "secret";
+    private static final String CLIENT = "client";
     private final PasswordEncoder passwordEncoder;
 
     @Bean
@@ -106,8 +108,8 @@ public class SecurityConfig {
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
         RegisteredClient oidcClient = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("client")
-                .clientSecret(passwordEncoder.encode("secret"))
+                .clientId(CLIENT)
+                .clientSecret(passwordEncoder.encode(SECRET))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)

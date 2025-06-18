@@ -312,11 +312,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                     jsonMappingException.getOriginalMessage()));
             details.add(String.format(DETAIL_JSON_MAPPING_FIELD_PATH_FORMAT, path));
 
-            if (jsonMappingException instanceof MismatchedInputException mismatchEx) {
-                if (Objects.nonNull(mismatchEx.getTargetType())) {
-                    details.add(String.format(DETAIL_JSON_MAPPING_EXPECTED_TYPE_FORMAT,
-                            mismatchEx.getTargetType().getSimpleName()));
-                }
+            if (jsonMappingException instanceof MismatchedInputException mismatchEx
+                    && Objects.nonNull(mismatchEx.getTargetType())) {
+                details.add(String.format(DETAIL_JSON_MAPPING_EXPECTED_TYPE_FORMAT,
+                        mismatchEx.getTargetType().getSimpleName()));
             }
         } else {
             details.add(String.format(DETAIL_JSON_MAPPING_PROBLEM_DETAIL_FORMAT,
