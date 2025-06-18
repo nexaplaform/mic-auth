@@ -13,6 +13,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -64,7 +65,29 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String ERROR_MESSAGE_JSON_PARSE_ERROR = "JSON malformado en el cuerpo de la solicitud";
     private static final String ERROR_MESSAGE_TYPE_MISMATCH = "El tipo de parámetro de solicitud no coincide";
     private static final String ERROR_MESSAGE_MISSING_PARAMETER = "Falta el parámetro de solicitud requerido";
-    private static final String ERROR_MESSAGE_INTERNAL_ERROR = "Ha ocurrido un error inesperado, revise el log para obtener mas detalles sobre el error";
+    public static final String ERROR_MESSAGE_ACCESS_DENIED = "Acceso denegado: No tienes los permisos necesarios.";
+
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
+
+        logDetail(ex.getClass().getSimpleName(), request, ex.getMessage());
+
+        List<String> details = new ArrayList<>();
+        details.add(String.format(DETAIL_ENDPOINT_FORMAT, request.getDescription(false)
+                .replace(URI, "")));
+
+        details.add("Causa: " + ex.getMessage());
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .code(ERROR_CODE_ACCESS_DENIED)
+                .message(ERROR_MESSAGE_ACCESS_DENIED)
+                .details(details)
+                .timeStamp(ZonedDateTime.now())
+                .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+    }
 
 
     /**
@@ -217,6 +240,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errorResponse, headers, httpStatus);
     }
 
+
+    private record ExceptionDetails(
+            String errorCode,
+            String baseErrorMessage,
+            List<String> details
+    ) {
+    }
+
     /**
      * Overrides the handling of HttpMessageNotReadableException (400 Bad Request).
      * Handles issues during JSON deserialization (malformed, incorrect type, missing required field).
@@ -228,63 +259,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 
         HttpStatus httpStatus = HttpStatus.valueOf(status.value());
-
-        String baseErrorMessage = ERROR_MESSAGE_MESSAGE_NOT_READABLE;
-        String errorCode = ERROR_CODE_MESSAGE_NOT_READABLE;
-        List<String> details = new ArrayList<>();
-
         Throwable mostSpecificCause = ex.getMostSpecificCause();
 
+        ExceptionDetails exceptionDetails = switch (mostSpecificCause) {
+            case JsonMappingException jsonMappingException -> handleJsonMappingException(jsonMappingException);
+            case JsonParseException jsonParseException -> handleJsonParseException(jsonParseException);
+            default -> handleGenericException(mostSpecificCause);
+        };
+
+
+        String errorCode = exceptionDetails.errorCode();
+        String baseErrorMessage = exceptionDetails.baseErrorMessage();
+        List<String> details = new ArrayList<>(exceptionDetails.details());
+
         if (mostSpecificCause instanceof JsonMappingException jsonMappingException) {
-
-            errorCode = ERROR_CODE_JSON_MAPPING_ERROR;
-            baseErrorMessage = ERROR_MESSAGE_JSON_MAPPING_ERROR;
-
-            String path = jsonMappingException.getPath().stream()
-                    .map(ref -> {
-                        if (Objects.nonNull(ref.getFieldName())) {
-                            return ref.getFieldName();
-                        } else {
-                            return "[" + ref.getIndex() + "]";
-                        }
-                    })
-                    .collect(Collectors.joining("."));
-
-            if (!path.isEmpty()) {
-                details.add(String.format(DETAIL_JSON_MAPPING_PROBLEM_DETAIL_FORMAT,
-                        jsonMappingException.getOriginalMessage()));
-                details.add(String.format(DETAIL_JSON_MAPPING_FIELD_PATH_FORMAT, path));
-
-                if (mostSpecificCause instanceof MismatchedInputException mismatchEx) {
-                    if (Objects.nonNull(mismatchEx.getTargetType())) {
-                        details.add(String.format(DETAIL_JSON_MAPPING_EXPECTED_TYPE_FORMAT,
-                                mismatchEx.getTargetType().getSimpleName()));
-                    }
-                }
-
-            } else {
-                details.add(String.format(DETAIL_JSON_MAPPING_PROBLEM_DETAIL_FORMAT,
-                        jsonMappingException.getOriginalMessage()));
-            }
-
-        } else if (mostSpecificCause instanceof JsonParseException jsonParseException) {
-            errorCode = ERROR_CODE_JSON_PARSE_ERROR;
-            baseErrorMessage = ERROR_MESSAGE_JSON_PARSE_ERROR;
-            details.add(String.format(DETAIL_JSON_PARSE_LOCATION_FORMAT,
-                    jsonParseException.getLocation().getLineNr(), jsonParseException.getLocation().getColumnNr()));
-            details.add(String.format(DETAIL_JSON_MAPPING_PROBLEM_DETAIL_FORMAT,
-                    jsonParseException.getOriginalMessage()));
-
-        } else {
-            details.add(String.format(DETAIL_CAUSE_FORMAT, mostSpecificCause.getClass().getSimpleName(),
-                    mostSpecificCause.getMessage()));
-        }
-
-        details.add(String.format(DETAIL_REQUEST_PATH_FORMAT, request.getDescription(false)
-                .replace(URI, "")));
-
-        if (errorCode.equals(ERROR_CODE_JSON_MAPPING_ERROR)) {
-            JsonMappingException jsonMappingException = (JsonMappingException) mostSpecificCause;
             String path = jsonMappingException.getPath().stream()
                     .map(ref -> {
                         if (Objects.nonNull(ref.getFieldName())) {
@@ -299,6 +287,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             }
         }
 
+        details.add(String.format(DETAIL_REQUEST_PATH_FORMAT, request.getDescription(false).replace(URI, "")));
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .code(errorCode)
@@ -308,6 +297,53 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .build();
 
         return new ResponseEntity<>(errorResponse, headers, httpStatus);
+    }
+
+    private ExceptionDetails handleJsonMappingException(JsonMappingException jsonMappingException) {
+
+        List<String> details = new ArrayList<>();
+
+        String path = jsonMappingException.getPath().stream()
+                .map(ref -> Objects.nonNull(ref.getFieldName()) ? ref.getFieldName() : "[" + ref.getIndex() + "]")
+                .collect(Collectors.joining("."));
+
+        if (!path.isEmpty()) {
+            details.add(String.format(DETAIL_JSON_MAPPING_PROBLEM_DETAIL_FORMAT,
+                    jsonMappingException.getOriginalMessage()));
+            details.add(String.format(DETAIL_JSON_MAPPING_FIELD_PATH_FORMAT, path));
+
+            if (jsonMappingException instanceof MismatchedInputException mismatchEx
+                    && Objects.nonNull(mismatchEx.getTargetType())) {
+                details.add(String.format(DETAIL_JSON_MAPPING_EXPECTED_TYPE_FORMAT,
+                        mismatchEx.getTargetType().getSimpleName()));
+            }
+        } else {
+            details.add(String.format(DETAIL_JSON_MAPPING_PROBLEM_DETAIL_FORMAT,
+                    jsonMappingException.getOriginalMessage()));
+        }
+
+        return new ExceptionDetails(ERROR_CODE_JSON_MAPPING_ERROR, ERROR_MESSAGE_JSON_MAPPING_ERROR, details);
+    }
+
+    private ExceptionDetails handleJsonParseException(JsonParseException jsonParseException) {
+
+        List<String> details = new ArrayList<>();
+
+        details.add(String.format(DETAIL_JSON_PARSE_LOCATION_FORMAT,
+                jsonParseException.getLocation().getLineNr(), jsonParseException.getLocation().getColumnNr()));
+        details.add(String.format(DETAIL_JSON_MAPPING_PROBLEM_DETAIL_FORMAT,
+                jsonParseException.getOriginalMessage()));
+
+        return new ExceptionDetails(ERROR_CODE_JSON_PARSE_ERROR, ERROR_MESSAGE_JSON_PARSE_ERROR, details);
+    }
+
+    private ExceptionDetails handleGenericException(Throwable mostSpecificCause) {
+        List<String> details = new ArrayList<>();
+
+        details.add(String.format(DETAIL_CAUSE_FORMAT, mostSpecificCause.getClass().getSimpleName(),
+                mostSpecificCause.getMessage()));
+
+        return new ExceptionDetails(ERROR_CODE_MESSAGE_NOT_READABLE, ERROR_MESSAGE_MESSAGE_NOT_READABLE, details);
     }
 
     /**
@@ -375,27 +411,5 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .build();
 
         return new ResponseEntity<>(errorResponse, headers, httpStatus);
-    }
-
-    /**
-     * Handles all other uncaught exceptions.
-     * Logs the exception and returns a 500 Internal Server Error.
-     */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleAllOtherExceptions(Exception ex, WebRequest request) {
-        
-        log.error("Ocurrio un error inesperado al procesar la solicitud {}: {}",
-                request.getDescription(true).replace(URI, ""),
-                ex.getMessage(),
-                ex);
-
-        ErrorResponse errorResponse = ErrorResponse.builder()
-                .code(ERROR_CODE_INTERNAL_ERROR)
-                .message(ERROR_MESSAGE_INTERNAL_ERROR)
-                .details(List.of("Error details: " + ex.getMessage()))
-                .timeStamp(ZonedDateTime.now())
-                .build();
-
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

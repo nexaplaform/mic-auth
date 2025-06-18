@@ -2,7 +2,7 @@ server:
   port: 9001
 
 api:
-  title: Documentation of Auth-microservices
+  title: Mic Auth-microservices
   version: v1.0.0
   description: This is the documentation related to the administration of the user microservice
 
@@ -12,5 +12,3 @@ spring:
 
   springdoc:
     show-actuator: true
-    packagesToScan:
-      - com.nexaplatform.api

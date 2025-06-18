@@ -38,7 +38,7 @@ class UserRepositoryImplTest {
 
     @Test
     void create_ok() {
-  
+
         User inputUser = getUserOne();
         UserEntity entityToSave = getUserEntityOne();
         User createdUser = getUserOne();
@@ -141,8 +141,8 @@ class UserRepositoryImplTest {
 
     @Test
     void update_throwsEntityNotFoundException_whenUserNotFound() {
-
         Long noExistsId = 2L;
+
         when(uRepository.findById(2L)).thenReturn(Optional.empty());
 
         EntityNotFoundException exception = assertThrows(EntityNotFoundException.class,
@@ -174,8 +174,7 @@ class UserRepositoryImplTest {
         verify(uMapper, times(1)).toDomain(toDomainArgumentCaptor.capture());
 
         UserEntity actualEntityPassedToToDomain = toDomainArgumentCaptor.getValue();
-        assertEquals(expectedEntity, actualEntityPassedToToDomain,
-                "La entidad pasada a uMapper.toDomain debe ser igual a la entidad esperada.");
+        assertEquals(expectedEntity, actualEntityPassedToToDomain);
     }
 
     @Test
@@ -216,7 +215,7 @@ class UserRepositoryImplTest {
         assertEquals(1, actualUsers.size());
         assertEquals(expectedUsers, actualUsers);
 
-        verify(uRepository).findAll(eq(expectedPageable));
-        verify(uMapper).toDomainList(eq(mockUserEntities));
+        verify(uRepository).findAll(expectedPageable);
+        verify(uMapper).toDomainList(mockUserEntities);
     }
 }

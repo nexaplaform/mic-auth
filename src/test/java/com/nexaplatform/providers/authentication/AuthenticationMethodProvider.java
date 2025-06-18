@@ -10,6 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AuthenticationMethodProvider {
 
+    public static final String ROLE_ADMIN = "ROLE_ADMIN";
+    public static final String NO_TIENES_LOS_PERMISOS_NECESARIOS = "Acceso denegado: No tienes los permisos necesarios.";
+
     public static AuthenticationMethodDtoIn getAuthenticationMethodDtoInOne() {
         return AuthenticationMethodDtoIn.builder()
                 .method("client_secret_basic")

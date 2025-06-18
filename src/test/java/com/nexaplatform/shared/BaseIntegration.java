@@ -1,4 +1,4 @@
-package com.nexaplatform.api.controllers;
+package com.nexaplatform.shared;
 
 import com.nexaplatform.TestContainersConfiguration;
 import jakarta.transaction.Transactional;
@@ -8,6 +8,7 @@ import lombok.extern.log4j.Log4j2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
@@ -22,10 +23,18 @@ import java.util.List;
 @ExtendWith(SpringExtension.class)
 @Import(TestContainersConfiguration.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public abstract class BaseIntegration {
 
     @Autowired
+    private JwtTestUtil jwtTestUtil;
+
+    @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    public String getToken(List<String> roles) {
+        return jwtTestUtil.getToken("John Doe", roles);
+    }
 
     @BeforeEach
     @Transactional

@@ -18,4 +18,5 @@ public class CodeError {
     public static final String ERROR_CODE_TYPE_MISMATCH = "TM001";
     public static final String ERROR_CODE_MISSING_PARAMETER = "MP001";
     public static final String ERROR_CODE_INTERNAL_ERROR = "ISE001";
+    public static final String ERROR_CODE_ACCESS_DENIED = "AUTH001";
 }
