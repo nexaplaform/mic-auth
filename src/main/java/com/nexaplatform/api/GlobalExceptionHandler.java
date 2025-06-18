@@ -65,7 +65,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String ERROR_MESSAGE_JSON_PARSE_ERROR = "JSON malformado en el cuerpo de la solicitud";
     private static final String ERROR_MESSAGE_TYPE_MISMATCH = "El tipo de parámetro de solicitud no coincide";
     private static final String ERROR_MESSAGE_MISSING_PARAMETER = "Falta el parámetro de solicitud requerido";
-    private static final String ERROR_MESSAGE_ACCESS_DENIED = "Acceso denegado: No tienes los permisos necesarios.";
+    public static final String ERROR_MESSAGE_ACCESS_DENIED = "Acceso denegado: No tienes los permisos necesarios.";
 
 
     @ExceptionHandler(AccessDeniedException.class)
