@@ -24,7 +24,7 @@ import static com.nexaplatform.providers.user.UserProvider.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class UserControllerTest extends BaseIntegration {
+class UserControllerIT extends BaseIntegration {
 
     private static final String ID = "/1";
     public static final String PATH_USERS = "v1/users";

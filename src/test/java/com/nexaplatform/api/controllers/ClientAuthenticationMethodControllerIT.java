@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-class ClientAuthenticationMethodControllerTest extends BaseIntegration {
+class ClientAuthenticationMethodControllerIT extends BaseIntegration {
 
     public static final String ID = "/1";
     public static final String PATH_AUTHENTICATIONMETHODS = "/v1/authenticationmethods";
