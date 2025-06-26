@@ -18,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+/* @CrossOrigin(origins = "http://localhost:4200", methods = {RequestMethod.POST, RequestMethod.OPTIONS}) */
 @Tag(name = "User Operations.", description = "Operations related to user administration.")
 public class UserController implements BaseApi<UserDtoIn, UserDtoOut, Long> {
 
