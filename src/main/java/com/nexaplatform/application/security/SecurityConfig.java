@@ -56,6 +56,7 @@ public class SecurityConfig {
     public static final String RSA_KEY_ID = UUID.randomUUID().toString();
     private static final String SECRET = "secret";
     private static final String CLIENT = "client";
+    public static final String PATH_USERS = "/v1/users";
     private final PasswordEncoder passwordEncoder;
 
     @Bean
@@ -68,12 +69,17 @@ public class SecurityConfig {
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer.authorizationServer();
 
-        http.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+        http
+                .cors(Customizer.withDefaults())
+                .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
                 .with(authorizationServerConfigurer, authorizationServer ->
                         authorizationServer.oidc(Customizer.withDefaults())
                 )
                 .authorizeHttpRequests(authorize ->
-                        authorize.anyRequest().authenticated()
+
+                        authorize
+                                .requestMatchers(HttpMethod.POST, PATH_USERS).permitAll()
+                                .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptions -> exceptions
                         .defaultAuthenticationEntryPointFor(
@@ -86,8 +92,11 @@ public class SecurityConfig {
     @Bean
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.POST, "/v1/users").permitAll()
+        http
+                .cors(Customizer.withDefaults())
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.POST, PATH_USERS).permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, PATH_USERS).permitAll()
                         .requestMatchers(LOGIN).permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
@@ -96,6 +105,7 @@ public class SecurityConfig {
                         .permitAll()
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.ignoringRequestMatchers(
+                        PATH_USERS,
                         "/swagger-ui/**",
                         "/v3/api-docs/**",
                         "/swagger-ui.html"))
@@ -113,8 +123,8 @@ public class SecurityConfig {
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .redirectUri("https://oauthdebugger.com/debug")
-                .postLogoutRedirectUri("http://127.0.0.1:9001/")
+                .redirectUri("http://localhost:4200/home")
+                .postLogoutRedirectUri("http://localhost:4200/home")
                 .scope(OidcScopes.OPENID)
                 .clientSettings(ClientSettings.builder().requireProofKey(true).build())
                 .build();
