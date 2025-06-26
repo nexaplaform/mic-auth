@@ -40,8 +40,7 @@ public class BeanConfiguration {
                 HttpHeaders.CONTENT_TYPE,
                 HttpHeaders.AUTHORIZATION,
                 HttpHeaders.ACCEPT,
-                HttpHeaders.ORIGIN,
-                "X-Requested-With"
+                HttpHeaders.ORIGIN
         ));
         corsConfiguration.setAllowCredentials(true);
         corsConfiguration.setMaxAge(3600L);
