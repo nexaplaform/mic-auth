@@ -55,7 +55,8 @@ public class SecurityConfig {
     private static final String LOGIN = "/login";
     public static final String RSA_KEY_ID = UUID.randomUUID().toString();
     private static final String SECRET = "secret";
-    private static final String CLIENT = "client";
+    private static final String CLIENT_ONE = "client";
+    private static final String CLIENT_TWO = "client_token";
     public static final String PATH_USERS = "/v1/users";
     private final PasswordEncoder passwordEncoder;
 
@@ -65,27 +66,39 @@ public class SecurityConfig {
     }
 
     @Bean
-    @Order(1)
+    @Order(1) // Esta cadena maneja los endpoints del servidor de autorización
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer.authorizationServer();
 
         http
-                .cors(Customizer.withDefaults())
+                .cors(Customizer.withDefaults()) // Asegúrate de que CORS también esté configurado para este filtro si sus endpoints son accedidos cross-origin
                 .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
                 .with(authorizationServerConfigurer, authorizationServer ->
                         authorizationServer.oidc(Customizer.withDefaults())
                 )
                 .authorizeHttpRequests(authorize ->
-
                         authorize
-                                .requestMatchers(HttpMethod.POST, PATH_USERS).permitAll()
+                                .requestMatchers(HttpMethod.POST, PATH_USERS).permitAll() // Si este endpoint es manejado por esta cadena
+                                .requestMatchers(HttpMethod.POST, "/oauth2/token").permitAll() // Si este endpoint es manejado por esta cadena
+                                .requestMatchers(HttpMethod.OPTIONS, PATH_USERS).permitAll() // Para preflight
                                 .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptions -> exceptions
                         .defaultAuthenticationEntryPointFor(
-                                new LoginUrlAuthenticationEntryPoint(LOGIN),
+                                new LoginUrlAuthenticationEntryPoint(LOGIN), // Redirige a /login si no autenticado y esperando HTML
                                 new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
-                        ));
+                        )
+                );
+//                .logout(logout -> logout
+//                        .logoutUrl("/logout") // La URL que activará el logout en el servidor de autorización
+//                        // (debe coincidir con el end_session_endpoint de tu AS)
+//                        .logoutSuccessUrl("http://localhost:4200/home") // URL a la que redirigir el navegador DESPUÉS del logout de Spring Security
+//                        .invalidateHttpSession(true) // ¡CRUCIAL! Invalida la sesión HTTP del usuario en el servidor
+//                        .deleteCookies("JSESSIONID") // ¡CRUCIAL! Elimina la cookie JSESSIONID del navegador
+//                        .clearAuthentication(true) // Limpia el objeto Authentication en el SecurityContextHolder
+//                        .permitAll() // Opcional, pero se suele permitir que el endpoint de logout sea accesible sin autenticación
+//                );
+
         return http.build();
     }
 
@@ -96,8 +109,11 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.POST, PATH_USERS).permitAll()
+                        .requestMatchers(HttpMethod.POST, "/oauth2/token").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, PATH_USERS).permitAll()
                         .requestMatchers(LOGIN).permitAll()
+                        .requestMatchers("/logout").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/logout").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
@@ -117,19 +133,31 @@ public class SecurityConfig {
 
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
-        RegisteredClient oidcClient = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId(CLIENT)
+//        RegisteredClient oidcClient = RegisteredClient.withId(UUID.randomUUID().toString())
+//                .clientId(CLIENT_ONE)
+//                .clientSecret(passwordEncoder.encode(SECRET))
+//                .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+//                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+//                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+//                .redirectUri("http://localhost:4200/home")
+//                .postLogoutRedirectUri("http://localhost:4200/home")
+//                .scope(OidcScopes.OPENID)
+//                .clientSettings(ClientSettings.builder().requireProofKey(true).build())
+//                .build();
+
+        RegisteredClient oidcClientTwo = RegisteredClient.withId(UUID.randomUUID().toString())
+                .clientId(CLIENT_TWO)
                 .clientSecret(passwordEncoder.encode(SECRET))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .redirectUri("http://localhost:4200/home")
-                .postLogoutRedirectUri("http://localhost:4200/home")
+                .redirectUri("https://oauthdebugger.com/debug")
+                .postLogoutRedirectUri("http://127.0.0.1:9001/")
                 .scope(OidcScopes.OPENID)
                 .clientSettings(ClientSettings.builder().requireProofKey(true).build())
                 .build();
 
-        return new InMemoryRegisteredClientRepository(oidcClient);
+        return new InMemoryRegisteredClientRepository(oidcClientTwo);
     }
 
     @Bean
