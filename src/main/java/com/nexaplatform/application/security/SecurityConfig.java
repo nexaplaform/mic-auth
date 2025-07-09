@@ -114,7 +114,7 @@ public class SecurityConfig {
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .redirectUri("https://oauthdebugger.com/debug")
-                .postLogoutRedirectUri("http://127.0.0.1:9001/")
+                .postLogoutRedirectUri("http://localhost:9001/")
                 .scope(OidcScopes.OPENID)
                 .clientSettings(ClientSettings.builder().requireProofKey(true).build())
                 .build();
