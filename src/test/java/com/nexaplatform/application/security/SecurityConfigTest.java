@@ -3,8 +3,6 @@ package com.nexaplatform.application.security;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
@@ -29,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @ActiveProfiles("test")
-@ExtendWith(MockitoExtension.class)
 class SecurityConfigTest {
 
     @Autowired
@@ -51,10 +48,9 @@ class SecurityConfigTest {
     void registeredClientRepositoryBeanShouldBePresentAndContainClient() {
         RegisteredClientRepository repository = applicationContext.getBean(RegisteredClientRepository.class);
         assertNotNull(repository);
-
-        RegisteredClient client = repository.findByClientId("client"); // 'client' es el clientId hardcodeado
+        RegisteredClient client = repository.findByClientId("client_token");
         assertNotNull(client);
-        assertThat(client.getClientId()).isEqualTo("client");
+        assertThat(client.getClientId()).isEqualTo("client_token");
         assertTrue(passwordEncoder.matches("secret", client.getClientSecret()));
         assertThat(client.getClientAuthenticationMethods()).contains(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
         assertThat(client.getScopes()).contains(OidcScopes.OPENID);

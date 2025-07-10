@@ -1,5 +1,6 @@
 package com.nexaplatform.application.impl;
 
+import com.nexaplatform.application.validation.user.UserHandlerValidations;
 import com.nexaplatform.domain.models.User;
 import com.nexaplatform.domain.repository.RoleRepository;
 import com.nexaplatform.domain.repository.UserRepository;
@@ -13,7 +14,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
-import static com.nexaplatform.providers.user.RoleProvider.getRoleOne;
 import static com.nexaplatform.providers.user.UserProvider.getUserOne;
 import static com.nexaplatform.providers.user.UserProvider.getUserTwo;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,13 +32,14 @@ class UserUseCaseImplTest {
     private RoleRepository roleRepository;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private UserHandlerValidations userHandlerValidations;
     @InjectMocks
     private UserUseCaseImpl userUseCase;
 
     @Test
     void create() {
 
-        when(roleRepository.getById(ID)).thenReturn(getRoleOne());
         when(uRepository.create(any(User.class))).thenReturn(getUserOne());
         when(passwordEncoder.encode(anyString())).thenReturn("123456789");
 
@@ -50,7 +51,6 @@ class UserUseCaseImplTest {
                 .usingRecursiveComparison()
                 .isEqualTo(user);
 
-        verify(roleRepository).getById(ID);
         verify(uRepository).create(any(User.class));
         verify(passwordEncoder).encode(anyString());
     }
@@ -92,7 +92,6 @@ class UserUseCaseImplTest {
     @Test
     void update() {
 
-        when(roleRepository.getById(ID)).thenReturn(getRoleOne());
         when(uRepository.update(anyLong(), any(User.class))).thenReturn(getUserTwo());
 
         User user = userUseCase.update(ID, getUserTwo().withId(ID));
@@ -102,7 +101,6 @@ class UserUseCaseImplTest {
                 .usingRecursiveComparison()
                 .isEqualTo(user);
 
-        verify(roleRepository).getById(ID);
         verify(uRepository).update(anyLong(), any(User.class));
     }
 
