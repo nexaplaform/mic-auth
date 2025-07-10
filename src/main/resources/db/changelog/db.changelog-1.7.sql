@@ -1,0 +1,5 @@
+ALTER TABLE authentication_methods
+ADD COLUMN created_by VARCHAR(60),
+ADD COLUMN created_date TIMESTAMP WITH TIME ZONE,
+ADD COLUMN last_modified_by VARCHAR(60),
+ADD COLUMN last_modified_date TIMESTAMP WITH TIME ZONE;
