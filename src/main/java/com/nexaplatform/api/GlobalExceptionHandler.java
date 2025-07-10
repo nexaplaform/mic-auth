@@ -11,6 +11,7 @@ import com.nexaplatform.domain.exception.ResourceAlreadyExistsException;
 import jakarta.annotation.Nullable;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
@@ -55,6 +56,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String DETAIL_JSON_MAPPING_EXPECTED_TYPE_FORMAT = "Expected type: %s";
 
     private static final String ERROR_MESSAGE_ENTITY_NOT_FOUND = "Entidad no encontrada";
+    private static final String ERROR_MESSAGE_INTEGRATION_DATA = "El registro que esta intentando almacenar ya existe";
     private static final String ERROR_MESSAGE_RESOURCE_ALREADY_EXISTS = "El recurso ya existe";
     private static final String ERROR_MESSAGE_OPERATION_NOT_ALLOWED = "Operación no permitida";
     private static final String ERROR_MESSAGE_BUSINESS_RULE_VIOLATION = "Violación de regla de negocio";
@@ -108,6 +110,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .message(Objects.nonNull(ex.getMessage()) ? ex.getMessage() : ERROR_MESSAGE_ENTITY_NOT_FOUND)
                 .details(combinedDetails)
                 .timeStamp(Objects.nonNull(ex.getTimeStamp()) ? ex.getTimeStamp() : ZonedDateTime.now())
+                .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponse> handleDataIntegrityViolationException(DataIntegrityViolationException ex, WebRequest request) {
+
+        logDetail(ex.getClass().getSimpleName(), request, ex.getMessage());
+
+        List<String> combinedDetails = new ArrayList<>();
+        combinedDetails.add(String.format(DETAIL_ENDPOINT_FORMAT, request.getDescription(false)
+                .replace(URI, "")));
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .code(ERROR_CODE_INTEGRATION_DATA)
+                .message(ERROR_MESSAGE_INTEGRATION_DATA)
+                .details(combinedDetails)
+                .timeStamp(ZonedDateTime.now())
                 .build();
 
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);

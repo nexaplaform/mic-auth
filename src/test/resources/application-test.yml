@@ -3,3 +3,6 @@ test:
     username: ${USER_TEST:userTest}
     password: ${PASS_TEST:passTest}
     database: ${DB_TEST:dbTest}
+
+temporal:
+  secret: secret

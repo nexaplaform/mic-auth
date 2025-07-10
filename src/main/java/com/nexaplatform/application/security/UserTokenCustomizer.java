@@ -17,6 +17,7 @@ import java.util.List;
 public class UserTokenCustomizer {
 
     public static final String ID_TOKEN = "id_token";
+    public static final String TOKEN_TYPE = "token_type";
 
     private final UserRepository userRepository;
 
@@ -25,11 +26,11 @@ public class UserTokenCustomizer {
         return context -> {
             Authentication principal = context.getPrincipal();
             if (context.getTokenType().getValue().equals(ID_TOKEN)) {
-                context.getClaims().claim("token_type", "id token");
+                context.getClaims().claim(TOKEN_TYPE, "id token");
             }
             if (context.getTokenType().getValue().equals("access_token")) {
                 User user = userRepository.findByEmail(principal.getName());
-                context.getClaims().claim("token_type", "access token");
+                context.getClaims().claim(TOKEN_TYPE, "access token");
                 List<String> roles = principal.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
                 context.getClaims().claim("roles", roles);
                 context.getClaims().claim("status", user.getStatus());

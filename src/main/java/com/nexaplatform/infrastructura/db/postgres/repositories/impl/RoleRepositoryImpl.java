@@ -6,7 +6,6 @@ import com.nexaplatform.domain.repository.RoleRepository;
 import com.nexaplatform.infrastructura.db.postgres.entities.RoleEntity;
 import com.nexaplatform.infrastructura.db.postgres.mappers.RoleEntityMapper;
 import com.nexaplatform.infrastructura.db.postgres.repositories.RoleRepositoryAdapter;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.BeanUtils;
@@ -15,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -35,19 +35,22 @@ public class RoleRepositoryImpl implements RoleRepository {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Role> getPaginated(Integer page, Integer size, Sort.Direction sort) {
         String sortProperty = "id";
-        Sort sortObject  = Sort.by(sort != null? sort : Sort.Direction.ASC, sortProperty);
+        Sort sortObject = Sort.by(sort != null ? sort : Sort.Direction.ASC, sortProperty);
         Pageable pageable = PageRequest.of(page, size, sortObject);
         Page<RoleEntity> roleEntity = roleRepository.findAll(pageable);
         return mapper.toDomainList(roleEntity.getContent());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Role getById(Long id) {
-        return mapper.toDomain(roleRepository.findById(id).orElseThrow(
+        RoleEntity roleResponse = roleRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException(ROLE_NOT_FOUND.getCode(),
-                String.format(ROLE_NOT_FOUND.getMessage(), id))));
+                        String.format(ROLE_NOT_FOUND.getMessage(), id)));
+        return mapper.toDomain(roleResponse);
     }
 
     @Override
@@ -63,5 +66,14 @@ public class RoleRepositoryImpl implements RoleRepository {
     public void delete(Long id) {
         this.getById(id);
         roleRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Role findByName(String name) {
+        RoleEntity roleResponse = roleRepository.findByName(name)
+                .orElseThrow(() -> new EntityNotFoundException(ROLE_NOT_FOUND.getCode(),
+                        String.format(ROLE_NOT_FOUND.getMessage(), name)));
+        return mapper.toDomain(roleResponse);
     }
 }

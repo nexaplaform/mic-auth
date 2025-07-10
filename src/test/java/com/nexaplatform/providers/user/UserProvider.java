@@ -18,7 +18,7 @@ public abstract class UserProvider {
     public static final String FIRST_NAME_ONE = "John";
     public static final String LAST_NAME_ONE = "Doe";
     public static final String FULL_NAME_ONE = FIRST_NAME_ONE + " " + LAST_NAME_ONE;
-    public static final String EMAIL_ONE = "johnDoe@exmaple.com";
+    public static final String EMAIL_ONE = "johndoe@exmaple.com";
     public static final String PASSWORD_ONE = "123456789";
     public static final String PHONE_NUMBER_ONE = "5-5555-5555";
     public static final String FIRST_NAME_TWO = "William";
@@ -61,10 +61,10 @@ public abstract class UserProvider {
                 .phoneNumber(PHONE_NUMBER_ONE)
                 .status(UserStatus.ACTIVE)
                 .roles(List.of(getRoleDtoOutOne(), getRoleDtoOutTwo()))
-                .accountNonExpired(true)
-                .accountNonLocked(true)
-                .enabled(true)
-                .credentialsNonExpired(true)
+                .accountNonExpired(Boolean.TRUE)
+                .accountNonLocked(Boolean.TRUE)
+                .enabled(Boolean.TRUE)
+                .credentialsNonExpired(Boolean.TRUE)
                 .build();
     }
 
@@ -78,10 +78,10 @@ public abstract class UserProvider {
                 .phoneNumber(PHONE_NUMBER_TWO)
                 .status(UserStatus.ACTIVE)
                 .roles(List.of(getRoleDtoOutOne(), getRoleDtoOutTwo()))
-                .accountNonExpired(true)
-                .accountNonLocked(true)
-                .enabled(true)
-                .credentialsNonExpired(true)
+                .accountNonExpired(Boolean.TRUE)
+                .accountNonLocked(Boolean.TRUE)
+                .enabled(Boolean.TRUE)
+                .credentialsNonExpired(Boolean.TRUE)
                 .build();
     }
 
@@ -95,10 +95,10 @@ public abstract class UserProvider {
                 .phoneNumber(PHONE_NUMBER_ONE)
                 .status(UserStatus.ACTIVE)
                 .roles(List.of(getRoleOne(), getRoleTwo()))
-                .accountNonExpired(true)
-                .accountNonLocked(true)
-                .enabled(true)
-                .credentialsNonExpired(true)
+                .accountNonExpired(Boolean.TRUE)
+                .accountNonLocked(Boolean.TRUE)
+                .enabled(Boolean.TRUE)
+                .credentialsNonExpired(Boolean.TRUE)
                 .build();
     }
 
@@ -112,10 +112,10 @@ public abstract class UserProvider {
                 .phoneNumber(PHONE_NUMBER_TWO)
                 .status(UserStatus.ACTIVE)
                 .roles(List.of(getRoleOne(), getRoleTwo()))
-                .accountNonExpired(true)
-                .accountNonLocked(true)
-                .enabled(true)
-                .credentialsNonExpired(true)
+                .accountNonExpired(Boolean.TRUE)
+                .accountNonLocked(Boolean.TRUE)
+                .enabled(Boolean.TRUE)
+                .credentialsNonExpired(Boolean.TRUE)
                 .build();
     }
 
@@ -128,10 +128,10 @@ public abstract class UserProvider {
                 .phoneNumber(PHONE_NUMBER_ONE)
                 .status(UserStatus.ACTIVE)
                 .roles(List.of(getRoleEntityOne(), getRoleEntityTwo()))
-                .accountNonExpired(true)
-                .accountNonLocked(true)
-                .enabled(true)
-                .credentialsNonExpired(true)
+                .accountNonExpired(Boolean.TRUE)
+                .accountNonLocked(Boolean.TRUE)
+                .enabled(Boolean.TRUE)
+                .credentialsNonExpired(Boolean.TRUE)
                 .build();
     }
 
@@ -144,10 +144,10 @@ public abstract class UserProvider {
                 .phoneNumber(PHONE_NUMBER_TWO)
                 .status(UserStatus.ACTIVE)
                 .roles(List.of(getRoleEntityOne(), getRoleEntityTwo()))
-                .accountNonExpired(true)
-                .accountNonLocked(true)
-                .enabled(true)
-                .credentialsNonExpired(true)
+                .accountNonExpired(Boolean.TRUE)
+                .accountNonLocked(Boolean.TRUE)
+                .enabled(Boolean.TRUE)
+                .credentialsNonExpired(Boolean.TRUE)
                 .build();
     }
 }

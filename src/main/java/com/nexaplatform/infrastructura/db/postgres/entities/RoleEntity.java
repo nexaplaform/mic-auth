@@ -7,9 +7,10 @@ import lombok.experimental.SuperBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
 @With
 @Entity
+@Setter
+@Getter
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
