@@ -2,15 +2,26 @@ spring:
   application:
     name: mic-auth
   datasource:
-    url: jdbc:postgresql://localhost:5432/micAuth
+    url: jdbc:postgresql://gondola.proxy.rlwy.net:36332/railway
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
   liquibase:
-    enabled: true
+    enabled: false
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://mic-auth-production.up.railway.app
+  springdoc:
+    oauth2:
+      client-id: swagger-client
+      client-secret: swagger-secret

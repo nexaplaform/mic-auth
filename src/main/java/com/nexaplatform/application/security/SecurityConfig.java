@@ -57,9 +57,9 @@ public class SecurityConfig {
     public static final String ALGORITHM = "RSA";
     public static final String RSA_KEY_ID = UUID.randomUUID().toString();
     private static final String CLIENT_TWO = "client_token";
-    private static final String ISSUER_UR = "http://localhost:9001";
-    private static final String REDIRECT_URL = "https://oauthdebugger.com/debug";
-    private static final String POST_LOGOUT_URL = "http://127.0.0.1:9001/";
+    private static final String ISSUER_UR = "https://mic-auth-production.up.railway.app";
+    private static final String REDIRECT_URL = "https://prueba.johnmasco.net";
+    private static final String POST_LOGOUT_URL = "https://mic-auth-production.up.railway.app";
 
     private final String[] GET_PUBLIC_URLS = {
             "/swagger-ui/**",
