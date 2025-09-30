@@ -1,5 +1,6 @@
 package com.nexaplatform.api.controllers.services.mappers;
 
+import com.nexaplatform.api.services.mappers.RoleDtoMapper;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 

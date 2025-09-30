@@ -1,7 +1,7 @@
 package com.nexaplatform.providers.user;
 
-import com.nexaplatform.api.controllers.services.dto.in.RoleDtoIn;
-import com.nexaplatform.api.controllers.services.dto.out.RoleDtoOut;
+import com.nexaplatform.api.services.dto.in.RoleDtoIn;
+import com.nexaplatform.api.services.dto.out.RoleDtoOut;
 import com.nexaplatform.domain.models.Role;
 import com.nexaplatform.infrastructura.db.postgres.entities.RoleEntity;
 import lombok.AccessLevel;

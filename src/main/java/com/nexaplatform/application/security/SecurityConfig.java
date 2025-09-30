@@ -57,26 +57,34 @@ public class SecurityConfig {
     public static final String ALGORITHM = "RSA";
     public static final String RSA_KEY_ID = UUID.randomUUID().toString();
     private static final String CLIENT_TWO = "client_token";
-    private static final String ISSUER_UR = "http://localhost:9001";
-    private static final String REDIRECT_URL = "https://oauthdebugger.com/debug";
-    private static final String POST_LOGOUT_URL = "http://127.0.0.1:9001/";
+    private static final String ISSUER_UR = "https://mic-auth-production.up.railway.app";
+    private static final String REDIRECT_URL = "https://prueba.johnmasco.net";
+    private static final String POST_LOGOUT_URL = "https://mic-auth-production.up.railway.app";
 
     private final String[] GET_PUBLIC_URLS = {
             "/swagger-ui/**",
             "/v3/api-docs/**",
             "/swagger-ui.html",
             "/logout",
+            "/v1/groups/**",
+            "/v1/roles/**",
             "/v1/users/**"
     };
 
     private final String[] POST_PUBLIC_URLS = {
             "/v1/users",
             "/v1/roles/**",
+            "/v1/groups/**",
             LOGIN
     };
 
     private final String[] OPTION_PUBLIC_URLS = {
             "/v1/users"
+    };
+
+    private final String[] PUT_PUBLIC_URLS = {
+            "/v1/users",
+            "/v1/groups/**",
     };
 
     @Value("${temporal.secret}")
@@ -122,6 +130,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, OPTION_PUBLIC_URLS).permitAll()
                         .requestMatchers(HttpMethod.GET, GET_PUBLIC_URLS).permitAll()
                         .requestMatchers(HttpMethod.POST, POST_PUBLIC_URLS).permitAll()
+                        .requestMatchers(HttpMethod.PUT, PUT_PUBLIC_URLS).permitAll()
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.ignoringRequestMatchers(POST_PUBLIC_URLS))
                 .formLogin(form ->

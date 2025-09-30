@@ -7,14 +7,15 @@ import lombok.experimental.SuperBuilder;
 
 import java.util.List;
 
-@Data
 @With
+@Setter
+@Getter
 @Entity
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
-@EqualsAndHashCode(callSuper = true, exclude = "roles")
+@EqualsAndHashCode(callSuper = true, exclude = {"roles", "groups"})
 public class UserEntity extends Auditable {
 
     @Id
@@ -46,6 +47,13 @@ public class UserEntity extends Auditable {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<RoleEntity> roles;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "group_users",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "group_id")
+    )
+    private List<GroupEntity> groups;
 
     @Column(name = "enabled")
     private Boolean enabled;

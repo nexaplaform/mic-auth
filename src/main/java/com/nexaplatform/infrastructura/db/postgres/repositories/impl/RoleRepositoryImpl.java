@@ -1,6 +1,7 @@
 package com.nexaplatform.infrastructura.db.postgres.repositories.impl;
 
-import com.nexaplatform.domain.exception.EntityNotFoundException;
+import com.nexaplaform.core.api.dto.SortEnumDTO;
+import com.nexaplaform.core.exception.EntityNotFoundException;
 import com.nexaplatform.domain.models.Role;
 import com.nexaplatform.domain.repository.RoleRepository;
 import com.nexaplatform.infrastructura.db.postgres.entities.RoleEntity;
@@ -36,9 +37,9 @@ public class RoleRepositoryImpl implements RoleRepository {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Role> getPaginated(Integer page, Integer size, Sort.Direction sort) {
+    public List<Role> getPaginated(Integer page, Integer size, SortEnumDTO sort) {
         String sortProperty = "id";
-        Sort sortObject = Sort.by(sort != null ? sort : Sort.Direction.ASC, sortProperty);
+        Sort sortObject = Sort.by(sort.toString(), sortProperty);
         Pageable pageable = PageRequest.of(page, size, sortObject);
         Page<RoleEntity> roleEntity = roleRepository.findAll(pageable);
         return mapper.toDomainList(roleEntity.getContent());

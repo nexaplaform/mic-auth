@@ -1,14 +1,14 @@
 package com.nexaplatform.api.controllers;
 
-import com.nexaplatform.api.controllers.services.BaseApi;
-import com.nexaplatform.api.controllers.services.dto.in.RoleDtoIn;
-import com.nexaplatform.api.controllers.services.dto.out.RoleDtoOut;
-import com.nexaplatform.api.controllers.services.mappers.RoleDtoMapper;
-import com.nexaplatform.application.RoleUserCase;
+import com.nexaplaform.core.api.configuration.BaseApi;
+import com.nexaplaform.core.api.dto.SortEnumDTO;
+import com.nexaplatform.api.services.dto.in.RoleDtoIn;
+import com.nexaplatform.api.services.dto.out.RoleDtoOut;
+import com.nexaplatform.api.services.mappers.RoleDtoMapper;
+import com.nexaplatform.application.useccase.RoleUserCase;
 import com.nexaplatform.domain.utils.ApplicationRole;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,7 +34,7 @@ public class RoleController implements BaseApi<RoleDtoIn, RoleDtoOut, Long> {
 
     @Override
     @PreAuthorize("hasAnyAuthority(" + "'" + ApplicationRole.ADMIN + "'" + ")")
-    public ResponseEntity<List<RoleDtoOut>> getPaginated(Integer page, Integer size, Sort.Direction sort) {
+    public ResponseEntity<List<RoleDtoOut>> getPaginated(Integer page, Integer size, SortEnumDTO sort) {
         return new ResponseEntity<>(mapper.toDtoOutList(roleUserCase.getPaginated(page, size, sort)), HttpStatus.OK);
     }
 
