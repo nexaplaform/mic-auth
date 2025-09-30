@@ -147,7 +147,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.nexaplaform.MicAuthApplication</mainClass>
+                    <mainClass>com.nexaplatform.MicAuthApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>
