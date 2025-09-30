@@ -13,7 +13,7 @@ public class CorsRegistryConfiguration implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins(
                         "http://localhost:4200",
-                        "https://mic-userservices-production.up.railway.app",
+                        "https://mic-auth-production.up.railway.app",
                         "https://prueba.johnmasco.net/", "https://prueba.johnmasco.net")
                 .allowedMethods(HttpMethod.GET.name(),
                         HttpMethod.POST.name(),
