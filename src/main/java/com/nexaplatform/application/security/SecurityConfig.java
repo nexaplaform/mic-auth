@@ -6,6 +6,7 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -53,9 +54,41 @@ import java.util.UUID;
 public class SecurityConfig {
 
     private static final String LOGIN = "/login";
+    public static final String ALGORITHM = "RSA";
     public static final String RSA_KEY_ID = UUID.randomUUID().toString();
-    private static final String SECRET = "secret";
-    private static final String CLIENT = "client";
+    private static final String CLIENT_TWO = "client_token";
+    private static final String ISSUER_UR = "https://mic-auth-production.up.railway.app";
+    private static final String REDIRECT_URL = "https://prueba.johnmasco.net";
+    private static final String POST_LOGOUT_URL = "https://mic-auth-production.up.railway.app";
+
+    private final String[] GET_PUBLIC_URLS = {
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-ui.html",
+            "/logout",
+            "/v1/groups/**",
+            "/v1/roles/**",
+            "/v1/users/**"
+    };
+
+    private final String[] POST_PUBLIC_URLS = {
+            "/v1/users",
+            "/v1/roles/**",
+            "/v1/groups/**",
+            LOGIN
+    };
+
+    private final String[] OPTION_PUBLIC_URLS = {
+            "/v1/users"
+    };
+
+    private final String[] PUT_PUBLIC_URLS = {
+            "/v1/users",
+            "/v1/groups/**",
+    };
+
+    @Value("${temporal.secret}")
+    private String temporalSecret;
     private final PasswordEncoder passwordEncoder;
 
     @Bean
@@ -66,39 +99,40 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
-        OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer.authorizationServer();
+        OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer
+                .authorizationServer();
 
-        http.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+        http.cors(Customizer.withDefaults())
+                .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
                 .with(authorizationServerConfigurer, authorizationServer ->
                         authorizationServer.oidc(Customizer.withDefaults())
                 )
                 .authorizeHttpRequests(authorize ->
-                        authorize.anyRequest().authenticated()
+                        authorize.requestMatchers(HttpMethod.POST, POST_PUBLIC_URLS).permitAll()
+                                .requestMatchers(HttpMethod.OPTIONS, OPTION_PUBLIC_URLS).permitAll()
+                                .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptions -> exceptions
                         .defaultAuthenticationEntryPointFor(
                                 new LoginUrlAuthenticationEntryPoint(LOGIN),
                                 new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
-                        ));
+                        )
+                );
         return http.build();
     }
 
     @Bean
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers(HttpMethod.POST, "/v1/users").permitAll()
-                        .requestMatchers(LOGIN).permitAll()
-                        .requestMatchers(
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui.html")
-                        .permitAll()
+        http
+                .cors(Customizer.withDefaults())
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.OPTIONS, OPTION_PUBLIC_URLS).permitAll()
+                        .requestMatchers(HttpMethod.GET, GET_PUBLIC_URLS).permitAll()
+                        .requestMatchers(HttpMethod.POST, POST_PUBLIC_URLS).permitAll()
+                        .requestMatchers(HttpMethod.PUT, PUT_PUBLIC_URLS).permitAll()
                         .anyRequest().authenticated())
-                .csrf(csrf -> csrf.ignoringRequestMatchers(
-                        "/swagger-ui/**",
-                        "/v3/api-docs/**",
-                        "/swagger-ui.html"))
+                .csrf(csrf -> csrf.ignoringRequestMatchers(POST_PUBLIC_URLS))
                 .formLogin(form ->
                         form.loginPage(LOGIN).permitAll())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
@@ -107,19 +141,19 @@ public class SecurityConfig {
 
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
-        RegisteredClient oidcClient = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId(CLIENT)
-                .clientSecret(passwordEncoder.encode(SECRET))
+        RegisteredClient oidcClientTwo = RegisteredClient.withId(UUID.randomUUID().toString())
+                .clientId(CLIENT_TWO)
+                .clientSecret(passwordEncoder.encode(temporalSecret))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .redirectUri("https://oauthdebugger.com/debug")
-                .postLogoutRedirectUri("http://127.0.0.1:9001/")
+                .redirectUri(REDIRECT_URL)
+                .postLogoutRedirectUri(POST_LOGOUT_URL)
                 .scope(OidcScopes.OPENID)
                 .clientSettings(ClientSettings.builder().requireProofKey(true).build())
                 .build();
 
-        return new InMemoryRegisteredClientRepository(oidcClient);
+        return new InMemoryRegisteredClientRepository(oidcClientTwo);
     }
 
     @Bean
@@ -138,7 +172,7 @@ public class SecurityConfig {
     private static KeyPair generateRsaKey() {
         KeyPair keyPair;
         try {
-            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(ALGORITHM);
             keyPairGenerator.initialize(2048);
             keyPair = keyPairGenerator.generateKeyPair();
         } catch (Exception ex) {
@@ -155,7 +189,7 @@ public class SecurityConfig {
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder()
-                .issuer("http://localhost:9001")
+                .issuer(ISSUER_UR)
                 .build();
     }
 

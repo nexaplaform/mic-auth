@@ -1,7 +1,7 @@
 package com.nexaplatform.providers.authentication;
 
-import com.nexaplatform.api.controllers.services.dto.in.AuthenticationMethodDtoIn;
-import com.nexaplatform.api.controllers.services.dto.out.AuthenticationMethodDtoOut;
+import com.nexaplatform.api.services.dto.in.AuthenticationMethodDtoIn;
+import com.nexaplatform.api.services.dto.out.AuthenticationMethodDtoOut;
 import com.nexaplatform.domain.models.AuthenticationMethod;
 import com.nexaplatform.infrastructura.db.postgres.entities.AuthenticationMethodEntity;
 import lombok.AccessLevel;

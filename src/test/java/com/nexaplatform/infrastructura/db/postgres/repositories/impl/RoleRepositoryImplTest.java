@@ -1,6 +1,7 @@
 package com.nexaplatform.infrastructura.db.postgres.repositories.impl;
 
-import com.nexaplatform.domain.exception.EntityNotFoundException;
+import com.nexaplaform.core.api.dto.SortEnumDTO;
+import com.nexaplaform.core.exception.EntityNotFoundException;
 import com.nexaplatform.domain.models.Role;
 import com.nexaplatform.infrastructura.db.postgres.entities.RoleEntity;
 import com.nexaplatform.infrastructura.db.postgres.mappers.RoleEntityMapper;
@@ -54,8 +55,8 @@ class RoleRepositoryImplTest {
         int page = 0;
         int size = 10;
         String sortProperty = "id";
-        Sort.Direction sort = Sort.Direction.ASC;
-        Sort sortObject = Sort.by(sort, sortProperty);
+        SortEnumDTO sort = SortEnumDTO.ASC;
+        Sort sortObject = Sort.by(sort.toString(), sortProperty);
 
         Pageable expectedPageable = PageRequest.of(page, size, sortObject);
         List<RoleEntity> mokRoleEntity = List.of(getRoleEntityOne(), getRoleEntityTwo());
@@ -99,7 +100,7 @@ class RoleRepositoryImplTest {
         when(roleRepository.findById(id)).thenReturn(Optional.empty());
 
         EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,
-                () ->   roleRepositoryImpl.getById(id)
+                () -> roleRepositoryImpl.getById(id)
         );
 
         assertEquals(ROLE_NOT_FOUND.getCode(), ex.getCode());
@@ -132,7 +133,7 @@ class RoleRepositoryImplTest {
         when(roleRepository.findById(id)).thenReturn(Optional.empty());
 
         EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,
-                () ->   roleRepositoryImpl.update(id, getRoleTwo())
+                () -> roleRepositoryImpl.update(id, getRoleTwo())
         );
 
         assertEquals(ROLE_NOT_FOUND.getCode(), ex.getCode());
@@ -162,7 +163,7 @@ class RoleRepositoryImplTest {
         when(roleRepository.findById(id)).thenReturn(Optional.empty());
 
         EntityNotFoundException ex = assertThrows(EntityNotFoundException.class,
-                () ->   roleRepositoryImpl.delete(id)
+                () -> roleRepositoryImpl.delete(id)
         );
 
         assertEquals(ROLE_NOT_FOUND.getCode(), ex.getCode());

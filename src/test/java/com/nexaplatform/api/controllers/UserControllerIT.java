@@ -1,8 +1,8 @@
 package com.nexaplatform.api.controllers;
 
-import com.nexaplatform.api.controllers.services.dto.in.UserDtoIn;
-import com.nexaplatform.api.controllers.services.dto.out.ErrorResponse;
-import com.nexaplatform.api.controllers.services.dto.out.UserDtoOut;
+import com.nexaplatform.api.services.dto.in.UserDtoIn;
+import com.nexaplatform.api.services.dto.out.ErrorResponse;
+import com.nexaplatform.api.services.dto.out.UserDtoOut;
 import com.nexaplatform.infrastructura.db.postgres.entities.RoleEntity;
 import com.nexaplatform.infrastructura.db.postgres.repositories.RoleRepositoryAdapter;
 import com.nexaplatform.infrastructura.db.postgres.repositories.UserRepositoryAdapter;

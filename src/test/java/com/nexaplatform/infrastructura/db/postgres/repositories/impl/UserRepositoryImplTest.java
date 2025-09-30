@@ -1,6 +1,7 @@
 package com.nexaplatform.infrastructura.db.postgres.repositories.impl;
 
-import com.nexaplatform.domain.exception.EntityNotFoundException;
+import com.nexaplaform.core.api.dto.SortEnumDTO;
+import com.nexaplaform.core.exception.EntityNotFoundException;
 import com.nexaplatform.domain.models.User;
 import com.nexaplatform.infrastructura.db.postgres.entities.UserEntity;
 import com.nexaplatform.infrastructura.db.postgres.mappers.UserEntityMapper;
@@ -197,8 +198,8 @@ class UserRepositoryImplTest {
         int page = 0;
         int size = 10;
         String sortProperty = "id";
-        Sort.Direction sort = Sort.Direction.DESC;
-        Sort sortObject = Sort.by(sort, sortProperty);
+        SortEnumDTO sort = SortEnumDTO.DESC;
+        Sort sortObject = Sort.by(sort.toString(), sortProperty);
 
         Pageable expectedPageable = PageRequest.of(page, size, sortObject);
         List<UserEntity> mockUserEntities = List.of(getUserEntityOne());

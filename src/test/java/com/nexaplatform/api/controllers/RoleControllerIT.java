@@ -1,7 +1,7 @@
 package com.nexaplatform.api.controllers;
 
-import com.nexaplatform.api.controllers.services.dto.out.ErrorResponse;
-import com.nexaplatform.api.controllers.services.dto.out.RoleDtoOut;
+import com.nexaplatform.api.services.dto.out.ErrorResponse;
+import com.nexaplatform.api.services.dto.out.RoleDtoOut;
 import com.nexaplatform.infrastructura.db.postgres.repositories.RoleRepositoryAdapter;
 import com.nexaplatform.shared.BaseIntegration;
 import org.junit.jupiter.api.Test;

@@ -1,6 +1,7 @@
 package com.nexaplatform.infrastructura.db.postgres.repositories.impl;
 
-import com.nexaplatform.domain.exception.EntityNotFoundException;
+import com.nexaplaform.core.api.dto.SortEnumDTO;
+import com.nexaplaform.core.exception.EntityNotFoundException;
 import com.nexaplatform.domain.models.AuthenticationMethod;
 import com.nexaplatform.infrastructura.db.postgres.entities.AuthenticationMethodEntity;
 import com.nexaplatform.infrastructura.db.postgres.mappers.AuthenticationMethodEntityMapper;
@@ -60,8 +61,8 @@ class AuthenticationMethodRepositoryImplTest {
         int page = 0;
         int size = 10;
         String sortProperty = "id";
-        Sort.Direction sort = Sort.Direction.ASC;
-        Sort sortObject = Sort.by(sort, sortProperty);
+        SortEnumDTO sort = SortEnumDTO.ASC;
+        Sort sortObject = Sort.by(sort.toString(), sortProperty);
 
         Pageable expectedPageable = PageRequest.of(page, size, sortObject);
         List<AuthenticationMethodEntity> mokRoleEntity = List.of(getAuthenticationMethodEntityOne(), getAuthenticationMethodEntityTwo());

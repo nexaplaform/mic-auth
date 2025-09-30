@@ -1,5 +1,6 @@
 package com.nexaplatform.domain.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +25,7 @@ public class User implements UserDetails {
     @Builder.Default
     private UserStatus status = UserStatus.ACTIVE;
     private List<Role> roles;
+    private List<Group> groups;
     @Builder.Default
     private Boolean enabled = true;
     @Builder.Default
@@ -33,6 +35,7 @@ public class User implements UserDetails {
     @Builder.Default
     private Boolean credentialsNonExpired = true;
 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.roles;

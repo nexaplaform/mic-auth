@@ -1,7 +1,7 @@
 package com.nexaplatform.providers.user;
 
-import com.nexaplatform.api.controllers.services.dto.in.RoleDtoIn;
-import com.nexaplatform.api.controllers.services.dto.out.RoleDtoOut;
+import com.nexaplatform.api.services.dto.in.RoleDtoIn;
+import com.nexaplatform.api.services.dto.out.RoleDtoOut;
 import com.nexaplatform.domain.models.Role;
 import com.nexaplatform.infrastructura.db.postgres.entities.RoleEntity;
 import lombok.AccessLevel;
@@ -15,8 +15,8 @@ public class RoleProvider {
     public static final Long ROLE_ID_ONE = 1L;
     public static final Long ROLE_ID_TWO = 2L;
 
-    public static final String ROLE_NAME_USER = "USER";
-    public static final String ROLE_NAME_ADMIN = "ADMIN";
+    public static final String ROLE_NAME_USER = "ROLE_USER";
+    public static final String ROLE_NAME_ADMIN = "ROLE_ADMIN";
 
     public static final String ROLE_DESC_USER = "Role for user generic";
     public static final String ROLE_DESC_ADMIN = "Role for admin app";
