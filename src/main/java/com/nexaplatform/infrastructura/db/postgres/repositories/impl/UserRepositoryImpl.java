@@ -69,11 +69,12 @@ public class UserRepositoryImpl implements UserRepository {
     public User findByEmail(String email) {
 
         UserEntity userEntity = uRepository.findByEmail(email);
-        log.debug("User name: {}", email);
+        log.info("User name: {}", email);
 
         if (Objects.isNull(userEntity)) {
             throw new InternalAuthenticationServiceException(String.format(USER_NOT_FOUND.getMessage(), email));
         }
+
         return uMapper.toDomain(userEntity);
     }
 }
