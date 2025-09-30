@@ -150,7 +150,7 @@ public class SecurityConfig {
                 .redirectUri(REDIRECT_URL)
                 .postLogoutRedirectUri(POST_LOGOUT_URL)
                 .scope(OidcScopes.OPENID)
-                .clientSettings(ClientSettings.builder().requireProofKey(true).build())
+                .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
                 .build();
 
         return new InMemoryRegisteredClientRepository(oidcClientTwo);
