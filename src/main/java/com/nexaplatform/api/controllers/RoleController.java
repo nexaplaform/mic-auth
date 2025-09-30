@@ -27,7 +27,7 @@ public class RoleController implements BaseApi<RoleDtoIn, RoleDtoOut, Long> {
     private final RoleUserCase roleUserCase;
 
     @Override
-    @PreAuthorize("hasAnyAuthority(" + "'" + ApplicationRole.ADMIN + "'" + ")")
+    //@PreAuthorize("hasAnyAuthority(" + "'" + ApplicationRole.ADMIN + "'" + ")")
     public ResponseEntity<RoleDtoOut> create(RoleDtoIn dto) {
         return new ResponseEntity<>(mapper.toDtoOut(roleUserCase.create(mapper.toDomain(dto))), HttpStatus.CREATED);
     }
