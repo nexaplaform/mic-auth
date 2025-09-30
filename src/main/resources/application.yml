@@ -5,7 +5,7 @@ api:
 
 spring:
   profiles:
-    active: ${ENV:local}
+    active: ${PROFILE:local}
 
   springdoc:
     show-actuator: true
