@@ -16,6 +16,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 @Log4j2
 @Testcontainers
@@ -25,6 +27,10 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public abstract class BaseIntegration {
+
+    public static final String PREFIX = "hibernate_";
+    private static final Pattern VALID_TABLE_NAME_PATTERN = Pattern.compile("^[a-zA-Z_][a-zA-Z0-9_]*$");
+    private static final Set<String> EXCLUDED_TABLE_PREFIXES = Set.of("hibernate_", "flyway_", "liquibase_");
 
     @Autowired
     private JwtTestUtil jwtTestUtil;
@@ -38,24 +44,46 @@ public abstract class BaseIntegration {
 
     @BeforeEach
     @Transactional
-    void setInit() {
+    public void cleanAllTables() {
+        log.info("Iniciando limpieza de todas las tablas y reiniciando IDs...");
 
-        log.info("Antes: Limpiando dinámicamente todas las tablas y reiniciando IDs...");
-        List<String> tableNames = jdbcTemplate.queryForList(
-                "SELECT tablename FROM pg_tables WHERE schemaname = 'public'",
-                String.class
-        );
+        List<String> tableNames;
+        try {
+
+            tableNames = jdbcTemplate.queryForList(
+                    "SELECT tablename FROM pg_tables WHERE schemaname = 'public'", String.class);
+
+        } catch (Exception e) {
+            log.error("Error al obtener los nombres de las tablas de la base de datos: {}", e.getMessage());
+            throw new IllegalStateException("No se pudieron obtener los nombres de las tablas para la limpieza.", e);
+        }
+
 
         List<String> tablesToTruncate = tableNames.stream()
-                .filter(tableName -> !tableName.startsWith("hibernate_"))
+                .filter(tableName -> EXCLUDED_TABLE_PREFIXES.stream().noneMatch(tableName::startsWith))
+                .filter(tableName -> {
+                    if (!VALID_TABLE_NAME_PATTERN.matcher(tableName).matches()) {
+                        log.warn("ADVERTENCIA DE SEGURIDAD: El nombre de la tabla '{}' contiene caracteres inválidos. No se truncará para prevenir SQL Injection.", tableName);
+                        return false;
+                    }
+                    return true;
+                })
                 .toList();
+
+        if (tablesToTruncate.isEmpty()) {
+            log.info("No se encontraron tablas para truncar después de la filtración y validación.");
+            return;
+        }
 
         for (String tableName : tablesToTruncate) {
             try {
-                jdbcTemplate.execute("TRUNCATE TABLE " + tableName + " RESTART IDENTITY CASCADE");
+                String truncateSql = "TRUNCATE TABLE ".concat(tableName).concat(" RESTART IDENTITY CASCADE");
+                log.info("Ejecutando: {}", truncateSql);
+                jdbcTemplate.execute(truncateSql);
             } catch (Exception e) {
-                System.err.println("Error al truncar la tabla " + tableName + ": " + e.getMessage());
+                log.error("Error al truncar la tabla '{}': {}", tableName, e.getMessage());
             }
         }
+        log.info("Limpieza de tablas finalizada.");
     }
 }

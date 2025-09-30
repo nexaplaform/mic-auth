@@ -1,6 +1,7 @@
 package com.nexaplatform.infrastructura.db.postgres.repositories.impl;
 
-import com.nexaplatform.domain.exception.EntityNotFoundException;
+import com.nexaplaform.core.api.dto.SortEnumDTO;
+import com.nexaplaform.core.exception.EntityNotFoundException;
 import com.nexaplatform.domain.models.AuthenticationMethod;
 import com.nexaplatform.domain.repository.AuthenticationMethodRepository;
 import com.nexaplatform.infrastructura.db.postgres.entities.AuthenticationMethodEntity;
@@ -33,9 +34,9 @@ public class AuthenticationMethodRepositoryImpl implements AuthenticationMethodR
     }
 
     @Override
-    public List<AuthenticationMethod> getPaginated(Integer page, Integer size, Sort.Direction sort) {
+    public List<AuthenticationMethod> getPaginated(Integer page, Integer size, SortEnumDTO sort) {
         String sortProperty = "id";
-        Sort sortObject = Sort.by(sort != null ? sort : Sort.Direction.ASC, sortProperty);
+        Sort sortObject = Sort.by(sort.toString(), sortProperty);
         Pageable pageable = PageRequest.of(page, size, sortObject);
         Page<AuthenticationMethodEntity> roleEntity = repositoryAdapter.findAll(pageable);
         return mapper.toDomainList(roleEntity.getContent());

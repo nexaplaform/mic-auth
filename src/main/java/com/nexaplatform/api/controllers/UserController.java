@@ -1,23 +1,25 @@
 package com.nexaplatform.api.controllers;
 
-import com.nexaplatform.api.controllers.services.BaseApi;
-import com.nexaplatform.api.controllers.services.dto.in.UserDtoIn;
-import com.nexaplatform.api.controllers.services.dto.out.UserDtoOut;
-import com.nexaplatform.api.controllers.services.mappers.UserDtoMapper;
-import com.nexaplatform.application.UserUseCase;
+import com.nexaplaform.core.api.configuration.BaseApi;
+import com.nexaplaform.core.api.dto.SortEnumDTO;
+import com.nexaplatform.api.services.dto.in.UserDtoIn;
+import com.nexaplatform.api.services.dto.out.UserDtoOut;
+import com.nexaplatform.api.services.mappers.UserDtoMapper;
+import com.nexaplatform.application.useccase.UserUseCase;
 import com.nexaplatform.domain.utils.ApplicationRole;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/v1/users")
 /* @CrossOrigin(origins = "http://localhost:4200", methods = {RequestMethod.POST, RequestMethod.OPTIONS}) */
 @Tag(name = "User Operations.", description = "Operations related to user administration.")
 public class UserController implements BaseApi<UserDtoIn, UserDtoOut, Long> {
@@ -32,8 +34,8 @@ public class UserController implements BaseApi<UserDtoIn, UserDtoOut, Long> {
 
     @Override
     @PreAuthorize("hasAnyAuthority(" + "'" + ApplicationRole.ADMIN + "'" + ")")
-    public ResponseEntity<List<UserDtoOut>> getPaginated(Integer page, Integer size, Sort.Direction sort) {
-        return new ResponseEntity<>(mapper.toDtoList(userUseCase.getPaginated(page, size, sort)), HttpStatus.OK);
+    public ResponseEntity<List<UserDtoOut>> getPaginated(Integer page, Integer size, SortEnumDTO sort) {
+        return new ResponseEntity<>(mapper.toDtoList(userUseCase.getPaginated(page, size, SortEnumDTO.ASC)), HttpStatus.OK);
     }
 
     @Override

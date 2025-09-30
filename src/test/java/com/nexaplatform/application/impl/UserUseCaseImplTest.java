@@ -1,6 +1,8 @@
 package com.nexaplatform.application.impl;
 
-import com.nexaplatform.application.validation.user.UserHandlerValidations;
+import com.nexaplaform.core.api.dto.SortEnumDTO;
+import com.nexaplatform.application.populator.UserHandlerPopulate;
+import com.nexaplatform.application.useccase.impl.UserUseCaseImpl;
 import com.nexaplatform.domain.models.User;
 import com.nexaplatform.domain.repository.RoleRepository;
 import com.nexaplatform.domain.repository.UserRepository;
@@ -9,7 +11,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
@@ -33,7 +34,7 @@ class UserUseCaseImplTest {
     @Mock
     private PasswordEncoder passwordEncoder;
     @Mock
-    private UserHandlerValidations userHandlerValidations;
+    private UserHandlerPopulate userHandlerPopulate;
     @InjectMocks
     private UserUseCaseImpl userUseCase;
 
@@ -60,7 +61,7 @@ class UserUseCaseImplTest {
 
         int page = 0;
         int size = 10;
-        Sort.Direction sort = Sort.Direction.ASC;
+        SortEnumDTO sort = SortEnumDTO.ASC;
 
         when(uRepository.getPaginated(page, size, sort)).thenReturn(List.of(getUserOne(), getUserTwo()));
 

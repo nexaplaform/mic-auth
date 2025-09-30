@@ -1,5 +1,7 @@
 package com.nexaplatform.application.impl;
 
+import com.nexaplaform.core.api.dto.SortEnumDTO;
+import com.nexaplatform.application.useccase.impl.ClientAuthenticationMethodUseCaseImpl;
 import com.nexaplatform.domain.models.AuthenticationMethod;
 import com.nexaplatform.domain.repository.AuthenticationMethodRepository;
 import org.junit.jupiter.api.Test;
@@ -7,7 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -48,7 +49,7 @@ class ClientAuthenticationMethodUseCaseImplTest {
 
         Integer page = 0;
         Integer size = 10;
-        Sort.Direction sort = Sort.Direction.ASC;
+        SortEnumDTO sort = SortEnumDTO.ASC;
 
         when(repository.getPaginated(page, size, sort)).thenReturn(List.of(getAuthenticationMethodOne(), getAuthenticationMethodTwo()));
 

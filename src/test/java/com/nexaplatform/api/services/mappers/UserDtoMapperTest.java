@@ -1,6 +1,5 @@
 package com.nexaplatform.api.services.mappers;
 
-import com.nexaplatform.api.controllers.services.mappers.UserDtoMapper;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 

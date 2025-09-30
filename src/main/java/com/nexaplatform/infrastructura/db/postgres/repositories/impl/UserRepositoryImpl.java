@@ -1,6 +1,7 @@
 package com.nexaplatform.infrastructura.db.postgres.repositories.impl;
 
-import com.nexaplatform.domain.exception.EntityNotFoundException;
+import com.nexaplaform.core.api.dto.SortEnumDTO;
+import com.nexaplaform.core.exception.EntityNotFoundException;
 import com.nexaplatform.domain.models.User;
 import com.nexaplatform.domain.repository.UserRepository;
 import com.nexaplatform.infrastructura.db.postgres.entities.UserEntity;
@@ -35,9 +36,9 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public List<User> getPaginated(Integer page, Integer size, Sort.Direction sort) {
+    public List<User> getPaginated(Integer page, Integer size, SortEnumDTO sort) {
         String sortProperty = "id";
-        Sort sortObject = Sort.by(sort != null ? sort : Sort.Direction.ASC, sortProperty);
+        Sort sortObject = Sort.by(sort.toString(), sortProperty);
         Pageable pageable = PageRequest.of(page, size, sortObject);
         Page<UserEntity> userEntity = uRepository.findAll(pageable);
         return uMapper.toDomainList(userEntity.getContent());

@@ -1,5 +1,7 @@
 package com.nexaplatform.application.impl;
 
+import com.nexaplaform.core.api.dto.SortEnumDTO;
+import com.nexaplatform.application.useccase.impl.RoleUseCaseImpl;
 import com.nexaplatform.domain.models.Role;
 import com.nexaplatform.domain.repository.RoleRepository;
 import org.junit.jupiter.api.Test;
@@ -7,7 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -46,7 +47,7 @@ class RoleUseCaseImplTest {
 
         int page = 0;
         int size = 10;
-        Sort.Direction sort = Sort.Direction.ASC;
+        SortEnumDTO sort = SortEnumDTO.ASC;
 
         when(roleRepository.getPaginated(page, size, sort)).thenReturn(List.of(getRoleOne(), getRoleTwo()));
 
@@ -66,7 +67,7 @@ class RoleUseCaseImplTest {
         Long id = 1L;
         when(roleRepository.getById(id)).thenReturn(getRoleOne());
 
-        Role role =roleUseCase.getById(id);
+        Role role = roleUseCase.getById(id);
 
         assertNotNull(role);
         assertThat(getRoleOne())

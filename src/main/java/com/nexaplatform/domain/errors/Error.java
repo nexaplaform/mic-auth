@@ -2,7 +2,7 @@ package com.nexaplatform.domain.errors;
 
 import lombok.Getter;
 
-import static com.nexaplatform.domain.exception.CodeError.ERROR_CODE_NOT_FOUND;
+import static com.nexaplaform.core.exception.CodeError.ERROR_CODE_NOT_FOUND;
 
 @Getter
 public enum Error {
@@ -10,6 +10,7 @@ public enum Error {
     USER_NOT_FOUND("EL usuario con el identificador %s no existe", ERROR_CODE_NOT_FOUND),
     AUTHORIZATION_METHOD_NOT_FOUND("EL método de autorizacion con identificador %s no existe", ERROR_CODE_NOT_FOUND),
     RESOURCE_EXISTS("EL registro %s que intenta crear ya existe", ERROR_CODE_NOT_FOUND),
+    RECORD_NOT_FOUND("EL registro con id %s que intenta buscar no existe.", ERROR_CODE_NOT_FOUND),
     ROLE_NOT_FOUND("EL rol con el identificador %s no existe", ERROR_CODE_NOT_FOUND);
 
     private final String message;

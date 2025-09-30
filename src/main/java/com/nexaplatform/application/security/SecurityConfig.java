@@ -66,17 +66,25 @@ public class SecurityConfig {
             "/v3/api-docs/**",
             "/swagger-ui.html",
             "/logout",
+            "/v1/groups/**",
+            "/v1/roles/**",
             "/v1/users/**"
     };
 
     private final String[] POST_PUBLIC_URLS = {
             "/v1/users",
             "/v1/roles/**",
+            "/v1/groups/**",
             LOGIN
     };
 
     private final String[] OPTION_PUBLIC_URLS = {
             "/v1/users"
+    };
+
+    private final String[] PUT_PUBLIC_URLS = {
+            "/v1/users",
+            "/v1/groups/**",
     };
 
     @Value("${temporal.secret}")
@@ -122,6 +130,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, OPTION_PUBLIC_URLS).permitAll()
                         .requestMatchers(HttpMethod.GET, GET_PUBLIC_URLS).permitAll()
                         .requestMatchers(HttpMethod.POST, POST_PUBLIC_URLS).permitAll()
+                        .requestMatchers(HttpMethod.PUT, PUT_PUBLIC_URLS).permitAll()
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.ignoringRequestMatchers(POST_PUBLIC_URLS))
                 .formLogin(form ->
