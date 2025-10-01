@@ -35,9 +35,6 @@ public class UserDtoOut {
     @Schema(example = "ACTIVE")
     private UserStatus status;
 
-    @ArraySchema(schema = @Schema(implementation = RoleDtoOut.class))
-    private List<RoleDtoOut> roles;
-
     @Schema(example = "true")
     private Boolean enabled;
 
@@ -49,4 +46,10 @@ public class UserDtoOut {
 
     @Schema(example = "true")
     private Boolean credentialsNonExpired;
+
+    @ArraySchema(schema = @Schema(implementation = RoleDtoOut.class))
+    private List<RoleDtoOut> roles;
+
+    @ArraySchema(schema = @Schema(implementation = UserGroupDtoOut.class))
+    private List<UserGroupDtoOut> groups;
 }

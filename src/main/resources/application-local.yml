@@ -30,7 +30,10 @@ spring:
       client-secret: swagger-secret
 
 temporal:
-  secret: ${SECRET_CLIENT:client}
+  secret: client
+  issuer-url: http://localhost:9001
+  post-logout-url: http://localhost:9001
+  redirect-url: https://oauthdebugger.com/debug
 
 #logging:
 #  level:
