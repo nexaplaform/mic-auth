@@ -20,8 +20,14 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: https://mic-auth-production.up.railway.app
+          issuer-uri: ${ISSUER_URL}
   springdoc:
     oauth2:
       client-id: swagger-client
       client-secret: swagger-secret
+
+temporal:
+  secret: ${SECRET_CLIENT}
+  issuer-url: ${ISSUER_URL}
+  post-logout-url: ${POST_LOGOUT_URL}
+  redirect-url: ${REDIRECT_URL:https}

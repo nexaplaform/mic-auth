@@ -2,6 +2,7 @@ package com.nexaplatform.api.services.mappers;
 
 import com.nexaplatform.api.services.dto.in.UserDtoIn;
 import com.nexaplatform.api.services.dto.out.UserDtoOut;
+import com.nexaplatform.domain.models.Group;
 import com.nexaplatform.domain.models.Role;
 import com.nexaplatform.domain.models.User;
 import org.mapstruct.Mapper;
@@ -43,6 +44,7 @@ public interface UserDtoMapper {
     @Mapping(target = "email", source = "email")
     @Mapping(target = "password", source = "password")
     @Mapping(target = "roles", source = "roles", qualifiedByName = "mapRoleIdsToRoles")
+    @Mapping(target = "groups", source = "groups", qualifiedByName = "mapGroupIdToGroups")
     User toDomain(UserDtoIn userDtoIn);
 
     @Named("mapRoleIdsToRoles")
@@ -53,5 +55,15 @@ public interface UserDtoMapper {
         return rolesIds.stream().map(id -> Role.builder()
                 .id(id)
                 .build()).toList();
+    }
+
+    @Named("mapGroupIdToGroups")
+    default List<Group> mapGroupIdToGroups(List<Long> groupIds) {
+        if (Objects.isNull(groupIds) || groupIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return groupIds.stream().map(id -> Group.builder()
+                        .id(id).build())
+                .toList();
     }
 }

@@ -5,20 +5,20 @@ import com.nexaplatform.domain.models.User;
 import com.nexaplatform.domain.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
 
 @Log4j2
-@Service
+@Component
 @RequiredArgsConstructor
 public class UserHandlerPopulate {
 
     private static final String ROLE_USER = "ROLE_USER";
     private static final String ROLE_DESCRIPTION = "Role default for users";
 
-    
+
     private final RoleRepository roleRepository;
 
     public void validateAssociatedRole(User user) {

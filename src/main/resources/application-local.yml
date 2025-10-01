@@ -1,11 +1,11 @@
 server:
   port: 9001
-  
+
 spring:
   application:
     name: mic-auth
   datasource:
-    url: jdbc:postgresql://localhost:5432/micAuth
+    url: jdbc:postgresql://localhost:5432/productcategory
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -30,7 +30,10 @@ spring:
       client-secret: swagger-secret
 
 temporal:
-  secret: ${SECRET_CLIENT}
+  secret: client
+  issuer-url: http://localhost:9001
+  post-logout-url: http://localhost:9001
+  redirect-url: https://oauthdebugger.com/debug
 
 #logging:
 #  level:
