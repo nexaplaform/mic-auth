@@ -57,9 +57,6 @@ public class SecurityConfig {
     public static final String ALGORITHM = "RSA";
     public static final String RSA_KEY_ID = UUID.randomUUID().toString();
     private static final String CLIENT_TWO = "client_token";
-    private static final String ISSUER_UR = "https://mic-auth-production.up.railway.app";
-    private static final String REDIRECT_URL = "https://prueba.johnmasco.net";
-    private static final String POST_LOGOUT_URL = "https://mic-auth-production.up.railway.app";
 
     private final String[] GET_PUBLIC_URLS = {
             "/swagger-ui/**",
@@ -89,6 +86,16 @@ public class SecurityConfig {
 
     @Value("${temporal.secret}")
     private String temporalSecret;
+
+    @Value("${temporal.issuer-url}")
+    private String issuerUrl;
+
+    @Value("${temporal.post-logout-url}")
+    private String postLogoutUrl;
+
+    @Value("${temporal.redirect-url}")
+    private String redirectUrl;
+
     private final PasswordEncoder passwordEncoder;
 
     @Bean
@@ -147,8 +154,8 @@ public class SecurityConfig {
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .redirectUri(REDIRECT_URL)
-                .postLogoutRedirectUri(POST_LOGOUT_URL)
+                .redirectUri(redirectUrl)
+                .postLogoutRedirectUri(postLogoutUrl)
                 .scope(OidcScopes.OPENID)
                 .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
                 .build();
@@ -189,7 +196,7 @@ public class SecurityConfig {
     @Bean
     public AuthorizationServerSettings authorizationServerSettings() {
         return AuthorizationServerSettings.builder()
-                .issuer(ISSUER_UR)
+                .issuer(issuerUrl)
                 .build();
     }
 

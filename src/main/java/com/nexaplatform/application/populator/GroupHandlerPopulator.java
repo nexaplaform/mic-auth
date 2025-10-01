@@ -7,13 +7,13 @@ import com.nexaplatform.domain.repository.RoleRepository;
 import com.nexaplatform.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Objects;
 
 @Log4j2
-@Service
+@Component
 @RequiredArgsConstructor
 public class GroupHandlerPopulator {
 
@@ -31,7 +31,7 @@ public class GroupHandlerPopulator {
             List<Role> roles = group.getRoles().stream()
                     .map(r -> roleRepository.getById(r.getId())).toList();
             group.setRoles(roles);
-            log.debug("Search roles with ids: {}", group.getRoles());
+            log.info("Search roles with ids: {}", group.getRoles());
         }
     }
 
@@ -41,7 +41,7 @@ public class GroupHandlerPopulator {
             List<User> users = group.getUsers().stream()
                     .map(u -> userRepository.getById(u.getId())).toList();
             group.setUsers(users);
-            log.debug("Search users with ids: {}", group.getUsers());
+            log.info("Search users with ids: {}", group.getUsers());
         }
     }
 }

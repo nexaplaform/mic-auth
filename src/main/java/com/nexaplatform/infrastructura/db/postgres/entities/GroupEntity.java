@@ -26,8 +26,8 @@ public class GroupEntity extends Auditable {
     @Column(name = "uniqueName")
     private String uniqueName;
 
-    @Column(name = "enabled")
-    private Boolean enabled;
+    @Column(name = "active")
+    private Boolean active;
 
     @Column(name = "description")
     private String description;

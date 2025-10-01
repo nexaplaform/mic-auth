@@ -15,7 +15,7 @@ public class Group {
     private Long id;
     private String name;
     private String uniqueName;
-    private Boolean enabled;
+    private Boolean active;
     private String description;
     private List<Role> roles;
     private List<User> users;

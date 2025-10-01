@@ -28,6 +28,9 @@ public class GroupDtoOut {
     @Schema(example = "This is the admin group.")
     private String description;
 
+    @Schema(example = "true")
+    private Boolean active;
+
     @ArraySchema(schema = @Schema(implementation = Role.class))
     private List<RoleDtoOut> roles;
 

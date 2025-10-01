@@ -23,7 +23,7 @@ public class GroupDtoIn {
     private String uniqueName;
 
     @Schema(example = "true")
-    private Boolean enabled;
+    private Boolean active;
 
     @Schema(example = "This is the admin group.")
     private String description;
