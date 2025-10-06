@@ -69,19 +69,34 @@ public class SecurityConfig {
     };
 
     private final String[] POST_PUBLIC_URLS = {
-            "/v1/users",
-            "/v1/roles/**",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-ui.html",
+            "/logout",
             "/v1/groups/**",
+            "/v1/roles/**",
+            "/v1/users/**",
             LOGIN
     };
 
     private final String[] OPTION_PUBLIC_URLS = {
-            "/v1/users"
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-ui.html",
+            "/logout",
+            "/v1/groups/**",
+            "/v1/roles/**",
+            "/v1/users/**"
     };
 
     private final String[] PUT_PUBLIC_URLS = {
-            "/v1/users",
+            "/swagger-ui/**",
+            "/v3/api-docs/**",
+            "/swagger-ui.html",
+            "/logout",
             "/v1/groups/**",
+            "/v1/roles/**",
+            "/v1/users/**"
     };
 
     @Value("${temporal.secret}")

@@ -46,6 +46,11 @@ public class RoleRepositoryImpl implements RoleRepository {
     }
 
     @Override
+    public List<Role> findAll() {
+        return mapper.toDomainList(roleRepository.findAll());
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public Role getById(Long id) {
         RoleEntity roleResponse = roleRepository.findById(id).orElseThrow(
