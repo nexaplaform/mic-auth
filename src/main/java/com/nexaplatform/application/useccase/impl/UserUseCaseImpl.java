@@ -40,6 +40,11 @@ public class UserUseCaseImpl implements UserUseCase, UserDetailsService {
     }
 
     @Override
+    public List<User> findAll() {
+        return uRepository.findAll();
+    }
+
+    @Override
     public User getById(Long id) {
         return uRepository.getById(id);
     }
@@ -59,7 +64,6 @@ public class UserUseCaseImpl implements UserUseCase, UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserDetails userDetails = uRepository.findByEmail(username.toLowerCase());
-        return userDetails;
+        return uRepository.findByEmail(username.toLowerCase());
     }
 }
