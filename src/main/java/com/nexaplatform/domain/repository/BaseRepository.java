@@ -18,6 +18,10 @@ public interface BaseRepository<E, K> {
         return Collections.emptyList();
     }
 
+    default List<E> findAll() {
+        return Collections.emptyList();
+    }
+
     default E getById(K id) {
         return null;
     }
