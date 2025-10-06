@@ -28,6 +28,11 @@ public class RoleUseCaseImpl implements RoleUserCase {
     }
 
     @Override
+    public List<Role> findAll() {
+        return roleRepository.findAll();
+    }
+
+    @Override
     public Role getById(Long id) {
         return roleRepository.getById(id);
     }
