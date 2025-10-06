@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,8 +31,12 @@ public class RoleController implements BaseApi<RoleDtoIn, RoleDtoOut, Long> {
         return new ResponseEntity<>(mapper.toDtoOut(roleUserCase.create(mapper.toDomain(dto))), HttpStatus.CREATED);
     }
 
-    @Override
+    @GetMapping("/findAll")
     //@PreAuthorize("hasAnyAuthority(" + "'" + ApplicationRole.ADMIN + "'" + ")")
+    public ResponseEntity<List<RoleDtoOut>> findAll() {
+        return new ResponseEntity<>(mapper.toDtoOutList(roleUserCase.findAll()), HttpStatus.OK);
+    }
+
     public ResponseEntity<List<RoleDtoOut>> getPaginated(Integer page, Integer size, SortEnumDTO sort) {
         return new ResponseEntity<>(mapper.toDtoOutList(roleUserCase.getPaginated(page, size, sort)), HttpStatus.OK);
     }
