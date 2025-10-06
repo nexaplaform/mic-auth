@@ -45,6 +45,11 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public List<User> findAll() {
+        return uMapper.toDomainList(uRepository.findAll());
+    }
+
+    @Override
     public User getById(Long id) {
         return uMapper.toDomain(uRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException(USER_NOT_FOUND.getCode(),

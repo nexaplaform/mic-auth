@@ -6,12 +6,11 @@ import com.nexaplatform.api.services.dto.in.UserDtoIn;
 import com.nexaplatform.api.services.dto.out.UserDtoOut;
 import com.nexaplatform.api.services.mappers.UserDtoMapper;
 import com.nexaplatform.application.useccase.UserUseCase;
-import com.nexaplatform.domain.utils.ApplicationRole;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,25 +31,30 @@ public class UserController implements BaseApi<UserDtoIn, UserDtoOut, Long> {
         return new ResponseEntity<>(mapper.toDto(userUseCase.create(mapper.toDomain(dto))), HttpStatus.CREATED);
     }
 
+    @GetMapping("/findAll")
+    public ResponseEntity<List<UserDtoOut>> findAll() {
+        return new ResponseEntity<>(mapper.toDtoList(userUseCase.findAll()), HttpStatus.OK);
+    }
+
     @Override
-    @PreAuthorize("hasAnyAuthority(" + "'" + ApplicationRole.ADMIN + "'" + ")")
+    //@PreAuthorize("hasAnyAuthority(" + "'" + ApplicationRole.ADMIN + "'" + ")")
     public ResponseEntity<List<UserDtoOut>> getPaginated(Integer page, Integer size, SortEnumDTO sort) {
         return new ResponseEntity<>(mapper.toDtoList(userUseCase.getPaginated(page, size, SortEnumDTO.ASC)), HttpStatus.OK);
     }
 
-    @Override
+    //@Override
     public ResponseEntity<UserDtoOut> getById(Long id) {
         return new ResponseEntity<>(mapper.toDto(userUseCase.getById(id)), HttpStatus.OK);
     }
 
     @Override
-    @PreAuthorize("hasAnyAuthority(" + "'" + ApplicationRole.ADMIN + "'" + ")")
+    //@PreAuthorize("hasAnyAuthority(" + "'" + ApplicationRole.ADMIN + "'" + ")")
     public ResponseEntity<UserDtoOut> update(Long id, UserDtoIn dto) {
         return new ResponseEntity<>(mapper.toDto(userUseCase.update(id, mapper.toDomain(dto))), HttpStatus.OK);
     }
 
     @Override
-    @PreAuthorize("hasAnyAuthority(" + "'" + ApplicationRole.ADMIN + "'" + ")")
+    //@PreAuthorize("hasAnyAuthority(" + "'" + ApplicationRole.ADMIN + "'" + ")")
     public ResponseEntity<Void> delete(Long id) {
         userUseCase.delete(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
