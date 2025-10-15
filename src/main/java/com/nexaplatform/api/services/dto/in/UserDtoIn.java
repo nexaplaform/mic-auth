@@ -25,12 +25,19 @@ public class UserDtoIn {
     @Schema(example = "5-5555-5555")
     private String phoneNumber;
 
+    @NotNull
     @Schema(example = "JohnDoe@example.com")
     private String email;
 
+    @NotNull
     @Schema(example = "123456789")
     @JsonProperty(access = JsonProperty.Access.READ_WRITE)
     private String password;
+
+    @NotNull
+    @Schema(example = "123456789")
+    @JsonProperty(access = JsonProperty.Access.READ_WRITE)
+    private String confirmPassword;
 
     @Schema(description = "Id de roles", example = "[\"1\", \"2\"]")
     private List<Long> roles;

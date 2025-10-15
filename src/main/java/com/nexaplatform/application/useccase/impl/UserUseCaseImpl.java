@@ -66,4 +66,10 @@ public class UserUseCaseImpl implements UserUseCase, UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return uRepository.findByEmail(username.toLowerCase());
     }
+
+    @Override
+    public User findUserByEmail(String email) {
+        User user = uRepository.findByEmail(email);
+        return user;
+    }
 }
