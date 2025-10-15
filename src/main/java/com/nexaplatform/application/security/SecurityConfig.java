@@ -130,6 +130,7 @@ public class SecurityConfig {
                         authorizationServer.oidc(Customizer.withDefaults())
                 )
                 .authorizeHttpRequests(authorize ->
+
                         authorize.requestMatchers(HttpMethod.POST, POST_PUBLIC_URLS).permitAll()
                                 .requestMatchers(HttpMethod.OPTIONS, OPTION_PUBLIC_URLS).permitAll()
                                 .anyRequest().authenticated()
@@ -149,10 +150,13 @@ public class SecurityConfig {
         http
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, OPTION_PUBLIC_URLS).permitAll()
                         .requestMatchers(HttpMethod.GET, GET_PUBLIC_URLS).permitAll()
                         .requestMatchers(HttpMethod.POST, POST_PUBLIC_URLS).permitAll()
                         .requestMatchers(HttpMethod.PUT, PUT_PUBLIC_URLS).permitAll()
+                        .requestMatchers(LOGIN, "/register", "/forgot-password", "/reset-password").permitAll()
+                        .requestMatchers(HttpMethod.POST, LOGIN).permitAll()
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.ignoringRequestMatchers(POST_PUBLIC_URLS))
                 .formLogin(form ->

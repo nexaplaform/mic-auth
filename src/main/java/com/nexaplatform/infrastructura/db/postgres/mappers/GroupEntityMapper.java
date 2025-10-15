@@ -25,7 +25,7 @@ public interface GroupEntityMapper {
 
     List<Group> toModelList(List<GroupEntity> entityList);
 
-    @Mapping(target = "id", source = "id")
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "name", source = "name")
     @Mapping(target = "uniqueName", source = "uniqueName")
     @Mapping(target = "active", source = "active")
