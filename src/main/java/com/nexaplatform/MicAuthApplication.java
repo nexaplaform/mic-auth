@@ -9,7 +9,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @EnableCoreServices
 @SpringBootApplication
 @OpenAPIDefinition(servers = {
-        @Server(url = "https://mic-auth-production.up.railway.app/", description = "Production Server")
+        @Server(url = "https://mic-auth-production.up.railway.app/", description = "Production Server"),
+        @Server(url = "http://localhost:9001", description = "Local Server")
 })
 public class MicAuthApplication {
 

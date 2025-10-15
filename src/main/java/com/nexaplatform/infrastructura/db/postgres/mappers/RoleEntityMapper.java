@@ -16,7 +16,7 @@ public interface RoleEntityMapper {
     @Mapping(target = "active", source = "active")
     Role toDomain(RoleEntity entity);
 
-    @Mapping(target = "id", source = "id")
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "name", source = "name")
     @Mapping(target = "description", source = "description")
     @Mapping(target = "active", source = "active")
