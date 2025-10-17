@@ -135,7 +135,6 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.OPTIONS, OPTION_PUBLIC_URLS).permitAll()
                                 .anyRequest().authenticated()
                 )
-                //.csrf(csrf -> csrf.ignoringRequestMatchers(authorizationServerConfigurer.getEndpointsMatcher()))
                 .exceptionHandling(exceptions -> exceptions
                         .defaultAuthenticationEntryPointFor(
                                 new LoginUrlAuthenticationEntryPoint(LOGIN),
@@ -162,8 +161,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.ignoringRequestMatchers(POST_PUBLIC_URLS))
                 .formLogin(form ->
-                                form.loginPage(LOGIN).permitAll()
-                        //.successHandler(new SavedRequestAwareAuthenticationSuccessHandler())
+                        form.loginPage(LOGIN).permitAll()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
         return http.build();
@@ -230,7 +228,6 @@ public class SecurityConfig {
                 new CustomJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter));
         return jwtAuthenticationConverter;
     }
-
 
     private record CustomJwtGrantedAuthoritiesConverter(
             JwtGrantedAuthoritiesConverter delegate) implements Converter<Jwt, Collection<GrantedAuthority>> {
