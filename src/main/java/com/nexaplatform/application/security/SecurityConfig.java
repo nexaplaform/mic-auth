@@ -37,6 +37,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
 import java.security.KeyPair;
@@ -135,6 +136,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.OPTIONS, OPTION_PUBLIC_URLS).permitAll()
                                 .anyRequest().authenticated()
                 )
+                .csrf(csrf -> csrf.ignoringRequestMatchers(authorizationServerConfigurer.getEndpointsMatcher()))
                 .exceptionHandling(exceptions -> exceptions
                         .defaultAuthenticationEntryPointFor(
                                 new LoginUrlAuthenticationEntryPoint(LOGIN),
@@ -156,11 +158,14 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, POST_PUBLIC_URLS).permitAll()
                         .requestMatchers(HttpMethod.PUT, PUT_PUBLIC_URLS).permitAll()
                         .requestMatchers(LOGIN, "/register", "/forgot-password", "/reset-password").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/assets/**", "/images/**", "/favicon.ico").permitAll()
                         .requestMatchers(HttpMethod.POST, LOGIN).permitAll()
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.ignoringRequestMatchers(POST_PUBLIC_URLS))
                 .formLogin(form ->
-                        form.loginPage(LOGIN).permitAll())
+                        form.loginPage(LOGIN).permitAll()
+                                .successHandler(new SavedRequestAwareAuthenticationSuccessHandler())
+                )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
         return http.build();
     }
