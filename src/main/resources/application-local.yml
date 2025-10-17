@@ -35,13 +35,13 @@ temporal:
   post-logout-url: http://localhost:9001
   redirect-url: https://oauthdebugger.com/debug
 
-#logging:
-#  level:
-#    root: DEBUG
-#    org:
-#      springframework:
-#        security: DEBUG
-#        security.web.authentication: DEBUG
-#        security.authentication: DEBUG
-#        security.access: DEBUG
-#        security.oauth2: DEBUG
+logging:
+  level:
+    root: DEBUG
+    org:
+      springframework:
+        security: DEBUG
+        security.web.authentication: DEBUG
+        security.authentication: DEBUG
+        security.access: DEBUG
+        security.oauth2: DEBUG
