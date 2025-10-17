@@ -37,7 +37,6 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
 import java.security.KeyPair;
@@ -136,7 +135,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.OPTIONS, OPTION_PUBLIC_URLS).permitAll()
                                 .anyRequest().authenticated()
                 )
-                .csrf(csrf -> csrf.ignoringRequestMatchers(authorizationServerConfigurer.getEndpointsMatcher()))
+                //.csrf(csrf -> csrf.ignoringRequestMatchers(authorizationServerConfigurer.getEndpointsMatcher()))
                 .exceptionHandling(exceptions -> exceptions
                         .defaultAuthenticationEntryPointFor(
                                 new LoginUrlAuthenticationEntryPoint(LOGIN),
@@ -163,8 +162,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.ignoringRequestMatchers(POST_PUBLIC_URLS))
                 .formLogin(form ->
-                        form.loginPage(LOGIN).permitAll()
-                                .successHandler(new SavedRequestAwareAuthenticationSuccessHandler())
+                                form.loginPage(LOGIN).permitAll()
+                        //.successHandler(new SavedRequestAwareAuthenticationSuccessHandler())
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
         return http.build();
@@ -179,7 +178,6 @@ public class SecurityConfig {
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
                 .redirectUri(redirectUrl)
-                .postLogoutRedirectUri(postLogoutUrl)
                 .scope(OidcScopes.OPENID)
                 .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
                 .build();

@@ -30,4 +30,4 @@ temporal:
   secret: ${SECRET_CLIENT}
   issuer-url: ${ISSUER_URL}
   post-logout-url: ${POST_LOGOUT_URL}
-  redirect-url: ${REDIRECT_URL:https}
+  redirect-url: ${REDIRECT_URL}
