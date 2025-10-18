@@ -65,8 +65,7 @@ public class SecurityConfig {
             "/logout",
             "/v1/groups/**",
             "/v1/roles/**",
-            "/v1/users/**"
-    };
+            "/v1/users/**"};
 
     private final String[] POST_PUBLIC_URLS = {
             "/swagger-ui/**",
@@ -76,8 +75,7 @@ public class SecurityConfig {
             "/v1/groups/**",
             "/v1/roles/**",
             "/v1/users/**",
-            LOGIN
-    };
+            LOGIN};
 
     private final String[] OPTION_PUBLIC_URLS = {
             "/swagger-ui/**",
@@ -86,8 +84,7 @@ public class SecurityConfig {
             "/logout",
             "/v1/groups/**",
             "/v1/roles/**",
-            "/v1/users/**"
-    };
+            "/v1/users/**"};
 
     private final String[] PUT_PUBLIC_URLS = {
             "/swagger-ui/**",
@@ -96,8 +93,19 @@ public class SecurityConfig {
             "/logout",
             "/v1/groups/**",
             "/v1/roles/**",
-            "/v1/users/**"
-    };
+            "/v1/users/**"};
+
+    private final String[] RESOURCE_PATH_URL = {
+            LOGIN,
+            "/css/**",
+            "/js/**",
+            "/images/**",
+            "/assets/**",
+            "/images/**",
+            "/favicon.ico",
+            "/register",
+            "/forgot-password",
+            "/reset-password"};
 
     @Value("${temporal.secret}")
     private String temporalSecret;
@@ -127,42 +135,34 @@ public class SecurityConfig {
         http.cors(Customizer.withDefaults())
                 .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
                 .with(authorizationServerConfigurer, authorizationServer ->
-                        authorizationServer.oidc(Customizer.withDefaults())
-                )
+                        authorizationServer.oidc(Customizer.withDefaults()))
                 .authorizeHttpRequests(authorize ->
-
                         authorize.requestMatchers(HttpMethod.POST, POST_PUBLIC_URLS).permitAll()
                                 .requestMatchers(HttpMethod.OPTIONS, OPTION_PUBLIC_URLS).permitAll()
-                                .anyRequest().authenticated()
-                )
+                                .anyRequest().authenticated())
                 .exceptionHandling(exceptions -> exceptions
                         .defaultAuthenticationEntryPointFor(
                                 new LoginUrlAuthenticationEntryPoint(LOGIN),
                                 new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
-                        )
-                );
+                        ));
         return http.build();
     }
 
     @Bean
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .cors(Customizer.withDefaults())
+        http.cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers(RESOURCE_PATH_URL).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, OPTION_PUBLIC_URLS).permitAll()
                         .requestMatchers(HttpMethod.GET, GET_PUBLIC_URLS).permitAll()
                         .requestMatchers(HttpMethod.POST, POST_PUBLIC_URLS).permitAll()
                         .requestMatchers(HttpMethod.PUT, PUT_PUBLIC_URLS).permitAll()
-                        .requestMatchers(LOGIN, "/register", "/forgot-password", "/reset-password").permitAll()
-                        .requestMatchers("/css/**", "/js/**", "/assets/**", "/images/**", "/favicon.ico").permitAll()
                         .requestMatchers(HttpMethod.POST, LOGIN).permitAll()
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.ignoringRequestMatchers(POST_PUBLIC_URLS))
                 .formLogin(form ->
-                        form.loginPage(LOGIN).permitAll()
-                )
+                        form.loginPage(LOGIN).permitAll())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
         return http.build();
     }
