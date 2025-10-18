@@ -11,6 +11,10 @@
           rel="stylesheet">
     <style>
         html, body { font-family: "Roboto", system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif; font-weight: 300; font-optical-sizing: auto; font-style: normal; }
+        #username::placeholder, #password::placeholder {
+            color: #bfbfbf;
+            opacity: 1;
+        }
     </style>
 </head>
 
@@ -57,42 +61,28 @@
                                 Sesión cerrada correctamente.
                             </div>
 
-                            <form class="form-horizontal" method="post" th:action="@{/login}">
-                                <!-- CSRF (requerido por defecto) -->
+                            <form class="form-horizontal needs-validation" method="post" th:action="@{/login}"
+                                  novalidate>
                                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
 
                                 <div class="mb-3">
                                     <label for="username">Email</label>
-                                    <input type="text" class="form-control" id="username" name="username" required
-                                           autofocus/>
+                                    <input type="email" class="form-control" id="username" name="username"
+                                           placeholder="ejemplo@correo.com" required autofocus/>
+                                    <div class="invalid-feedback">Por favor ingrese un email válido.</div>
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="password">Password:</label>
                                     <div class="input-group auth-pass-inputgroup">
                                         <input type="password" class="form-control" id="password" name="password"
-                                               required/>
-                                    </div>
-                                </div>
-
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" id="remember-check">
-                                    <label class="form-check-label" for="remember-check"> Remember me </label>
-                                </div>
-
-                                <div id="elmLoader" class="text-center d-none">
-                                    <div class="spinner-border text-primary avatar-sm" role="status">
-                                        <span class="visually-hidden">Loading...</span>
+                                               placeholder="********" required/>
+                                        <div class="invalid-feedback">Por favor ingrese su contraseña.</div>
                                     </div>
                                 </div>
 
                                 <div class="mt-3 d-grid">
                                     <button class="btn btn-primary" type="submit">Log In</button>
-                                </div>
-
-                                <div class="mt-4 text-center">
-                                    <a routerLink="/auth/reset-password" class="text-muted"><i
-                                            class="mdi mdi-lock mr-1"></i> Forgot your password?</a>
                                 </div>
                             </form>
                         </div>
@@ -120,6 +110,22 @@
     setTimeout(() => {
       document.querySelectorAll('.alert').forEach(a => a.classList.add('d-none'));
     }, 4000);
+
+    // Validación personalizada de Bootstrap
+    (() => {
+      'use strict';
+      const forms = document.querySelectorAll('.needs-validation');
+
+      Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      });
+    })();
 </script>
 </body>
 </html>
