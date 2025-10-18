@@ -69,7 +69,6 @@ public class UserUseCaseImpl implements UserUseCase, UserDetailsService {
 
     @Override
     public User findUserByEmail(String email) {
-        User user = uRepository.findByEmail(email);
-        return user;
+        return uRepository.findByEmail(email);
     }
 }
