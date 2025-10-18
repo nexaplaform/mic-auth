@@ -14,11 +14,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Objects;
 
 import static com.nexaplatform.domain.errors.Error.USER_NOT_FOUND;
 
@@ -72,14 +70,8 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User findByEmail(String email) {
-
         UserEntity userEntity = uRepository.findByEmail(email);
         log.info("User name: {}", email);
-
-        if (Objects.isNull(userEntity)) {
-            throw new InternalAuthenticationServiceException(String.format(USER_NOT_FOUND.getMessage(), email));
-        }
-
         return uMapper.toDomain(userEntity);
     }
 }
