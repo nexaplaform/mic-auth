@@ -17,6 +17,15 @@
             font-optical-sizing: auto;
             font-style: normal;
         }
+
+        #firstName::placeholder,
+        #lastName::placeholder,
+        #email::placeholder,
+        #password::placeholder,
+        #confirmPassword::placeholder {
+            color: #bfbfbf;
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -64,30 +73,31 @@
                                 <div class="mb-3">
                                     <label for="firstName" class="form-label">Name</label>
                                     <input type="text" class="form-control" id="firstName" th:field="*{firstName}"
-                                           required/>
+                                           placeholder="John" required/>
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="lastName" class="form-label">Last Name</label>
                                     <input type="text" class="form-control" id="lastName" th:field="*{lastName}"
-                                           required/>
+                                           placeholder="Doe" required/>
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="email" th:field="*{email}" required/>
+                                    <input type="email" class="form-control" id="email" th:field="*{email}"
+                                           placeholder="john@example.com" required/>
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="password" class="form-label">Password</label>
                                     <input type="password" class="form-control" id="password" th:field="*{password}"
-                                           required/>
+                                           placeholder="********" required/>
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="confirmPassword" class="form-label">Confirm Password</label>
                                     <input type="password" class="form-control" id="confirmPassword"
-                                           th:field="*{confirmPassword}" required/>
+                                           th:field="*{confirmPassword}" placeholder="********" required/>
                                 </div>
 
                                 <div class="mt-4 mb-4 d-grid">
