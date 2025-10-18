@@ -36,6 +36,8 @@ import org.springframework.security.oauth2.server.authorization.settings.ClientS
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.WebAttributes;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
@@ -161,10 +163,23 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, LOGIN).permitAll()
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.ignoringRequestMatchers(POST_PUBLIC_URLS))
-                .formLogin(form ->
-                        form.loginPage(LOGIN).permitAll())
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .loginProcessingUrl("/login")
+                        .failureHandler(failureHandler()) // aquí
+                        .permitAll()
+                )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
         return http.build();
+    }
+
+    @Bean
+    public AuthenticationFailureHandler failureHandler() {
+        return (request, response, exception) -> {
+            request.getSession().setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION,
+                    "Usuario o contraseña incorrectos.");
+            response.sendRedirect("/login");
+        };
     }
 
     @Bean
