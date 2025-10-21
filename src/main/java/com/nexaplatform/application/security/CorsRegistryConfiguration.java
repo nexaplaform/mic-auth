@@ -5,8 +5,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.List;
 
 @Configuration
 public class CorsRegistryConfiguration implements WebMvcConfigurer {
@@ -22,7 +27,7 @@ public class CorsRegistryConfiguration implements WebMvcConfigurer {
                 .allowedOrigins(
                         "http://localhost:4200",
                         "https://mic-auth-production.up.railway.app",
-                        "https://prueba.johnmasco.net/", "https://prueba.johnmasco.net")
+                        "https://prueba.johnmasco.net")
                 .allowedMethods(HttpMethod.GET.name(),
                         HttpMethod.POST.name(),
                         HttpMethod.PUT.name(),
@@ -31,5 +36,24 @@ public class CorsRegistryConfiguration implements WebMvcConfigurer {
                         HttpMethod.OPTIONS.name())
                 .allowedHeaders("*")
                 .allowCredentials(true);
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of(
+                "http://localhost:4200",
+                "https://mic-auth-production.up.railway.app",
+                "https://prueba.johnmasco.net"
+        ));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+        // Si tu front envía Authorization / Content-Type, con "*" vale.
+        // Si usas cabeceras custom, añádelas aquí.
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 }
