@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Log4j2
 @Service
@@ -69,6 +70,10 @@ public class UserUseCaseImpl implements UserUseCase, UserDetailsService {
 
     @Override
     public User findUserByEmail(String email) {
+        User user = uRepository.findByEmail(email);
+        if (Objects.isNull(user)) {
+            log.info("El usuario con el email {} no la sido encontrado", email);
+        }
         return uRepository.findByEmail(email);
     }
 }
