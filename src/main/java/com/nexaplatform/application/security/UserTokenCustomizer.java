@@ -45,7 +45,7 @@ public class UserTokenCustomizer {
                 context.getClaims().claim("id", user.getId());
                 context.getClaims().claim("fistName", user.getFirstName());
                 context.getClaims().claim("lastName", user.getLastName());
-                context.getClaims().claim("fullName", user.getFirstName() + " " + user.getFirstName());
+                context.getClaims().claim("fullName", user.getFirstName() + " " + user.getLastName());
                 context.getClaims().claim("roles", roles);
                 context.getClaims().claim("status", user.getStatus());
                 context.getClaims().claim("groups", groups);
