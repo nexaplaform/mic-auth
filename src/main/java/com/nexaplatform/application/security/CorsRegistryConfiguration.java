@@ -32,23 +32,4 @@ public class CorsRegistryConfiguration implements WebMvcConfigurer {
                 .allowedHeaders("*")
                 .allowCredentials(true);
     }
-
-//    @Bean
-//    public CorsConfigurationSource corsConfigurationSource() {
-//        CorsConfiguration config = new CorsConfiguration();
-//        config.setAllowedOrigins(List.of(
-//                "http://localhost:4200",
-//                "https://mic-auth-production.up.railway.app",
-//                "https://prueba.johnmasco.net"
-//        ));
-//        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-//        config.setAllowedHeaders(List.of("*"));
-//        config.setAllowCredentials(true);
-//        // Si tu front envía Authorization / Content-Type, con "*" vale.
-//        // Si usas cabeceras custom, añádelas aquí.
-//
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", config);
-//        return source;
-//    }
 }
