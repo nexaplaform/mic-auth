@@ -165,7 +165,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.ignoringRequestMatchers(POST_PUBLIC_URLS))
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .loginProcessingUrl("/login")
+                        //.loginProcessingUrl("/login")
                         .failureHandler(failureHandler())
                         .permitAll()
                 )
