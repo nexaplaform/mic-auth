@@ -33,7 +33,7 @@ temporal:
   secret: client
   issuer-url: http://localhost:9001
   post-logout-url: http://localhost:9001
-  redirect-url: http://localhost:4200/
+  redirect-url: https://oauthdebugger.com/debug
 
 logging:
   level:
