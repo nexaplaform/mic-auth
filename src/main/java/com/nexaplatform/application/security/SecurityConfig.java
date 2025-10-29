@@ -5,6 +5,8 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -39,6 +41,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
 import java.security.KeyPair;
@@ -142,12 +147,34 @@ public class SecurityConfig {
                         authorize.requestMatchers(HttpMethod.POST, POST_PUBLIC_URLS).permitAll()
                                 .requestMatchers(HttpMethod.OPTIONS, OPTION_PUBLIC_URLS).permitAll()
                                 .anyRequest().authenticated())
+                .requestCache(rc -> rc.requestCache(onlyAuthorizeRequestCache()))
                 .exceptionHandling(exceptions -> exceptions
                         .defaultAuthenticationEntryPointFor(
                                 new LoginUrlAuthenticationEntryPoint(LOGIN),
                                 new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
                         ));
         return http.build();
+    }
+
+    @Bean
+    public RequestCache onlyAuthorizeRequestCache() {
+        return new HttpSessionRequestCache() {
+            @Override
+            public void saveRequest(HttpServletRequest request, HttpServletResponse response) {
+                String uri = request.getRequestURI();
+                // Guarda SOLO el authorize del AS (evita /.well-known, /error, etc.)
+                if (uri.startsWith("/oauth2/authorize")) {
+                    super.saveRequest(request, response);
+                }
+            }
+        };
+    }
+
+    @Bean
+    public SavedRequestAwareAuthenticationSuccessHandler loginSuccessHandler(RequestCache onlyAuthorizeRequestCache) {
+        SavedRequestAwareAuthenticationSuccessHandler h = new SavedRequestAwareAuthenticationSuccessHandler();
+        h.setRequestCache(onlyAuthorizeRequestCache);
+        return h;
     }
 
     @Bean
@@ -163,6 +190,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, LOGIN).permitAll()
                         .anyRequest().authenticated())
                 .csrf(csrf -> csrf.ignoringRequestMatchers(POST_PUBLIC_URLS))
+                .requestCache(rc -> rc.requestCache(onlyAuthorizeRequestCache()))
                 .formLogin(form -> form
                         .loginPage("/login")
                         .failureHandler(failureHandler())
@@ -183,19 +211,32 @@ public class SecurityConfig {
 
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
+
+        RegisteredClient spaLocal = RegisteredClient.withId(UUID.randomUUID().toString())
+                .clientId("client_local")
+                .clientAuthenticationMethod(ClientAuthenticationMethod.NONE)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
+                .redirectUri("http://localhost:4200/")
+                .scope(OidcScopes.OPENID)
+                .clientSettings(ClientSettings.builder()
+                        .requireProofKey(true)
+                        .requireAuthorizationConsent(true)
+                        .build())
+                .build();
+
         RegisteredClient oidcClientTwo = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId(CLIENT_TWO)
                 .clientSecret(passwordEncoder.encode(temporalSecret))
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
-                .redirectUri("http://localhost:4200/")
                 .redirectUri(redirectUrl)
                 .scope(OidcScopes.OPENID)
                 .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
                 .build();
 
-        return new InMemoryRegisteredClientRepository(oidcClientTwo);
+        return new InMemoryRegisteredClientRepository(spaLocal, oidcClientTwo);
     }
 
     @Bean

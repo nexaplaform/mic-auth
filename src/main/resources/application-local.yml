@@ -35,6 +35,12 @@ temporal:
   post-logout-url: http://localhost:9001
   redirect-url: http://localhost:4200/
 
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+
+
 #logging:
 #  level:
 #    root: DEBUG
