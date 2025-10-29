@@ -42,6 +42,7 @@ import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
@@ -82,7 +83,8 @@ public class SecurityConfig {
             "/v1/groups/**",
             "/v1/roles/**",
             "/v1/users/**",
-            LOGIN};
+            LOGIN,
+            "/logout"};
 
     private final String[] OPTION_PUBLIC_URLS = {
             "/swagger-ui/**",
@@ -180,7 +182,8 @@ public class SecurityConfig {
     @Bean
     @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.cors(Customizer.withDefaults())
+        http
+                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(RESOURCE_PATH_URL).permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, OPTION_PUBLIC_URLS).permitAll()
@@ -188,16 +191,44 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, POST_PUBLIC_URLS).permitAll()
                         .requestMatchers(HttpMethod.PUT, PUT_PUBLIC_URLS).permitAll()
                         .requestMatchers(HttpMethod.POST, LOGIN).permitAll()
-                        .anyRequest().authenticated())
-                .csrf(csrf -> csrf.ignoringRequestMatchers(POST_PUBLIC_URLS))
+                        .requestMatchers("/logout").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .csrf(csrf ->
+                        csrf.ignoringRequestMatchers(POST_PUBLIC_URLS)
+                )
                 .requestCache(rc -> rc.requestCache(onlyAuthorizeRequestCache()))
                 .formLogin(form -> form
                         .loginPage("/login")
                         .failureHandler(failureHandler())
                         .permitAll()
                 )
+                // 🚀 LOGOUT MODERNO (sin Ant ni Mvc matcher)
+                .logout(logout -> logout
+                        .logoutUrl("/logout")               // POST /logout
+                        .clearAuthentication(true)
+                        .invalidateHttpSession(true)
+                        .deleteCookies("JSESSIONID")
+                        .logoutSuccessHandler((req, res, auth) -> {
+                            String redirect = req.getParameter("post_logout_redirect_uri");
+                            if (redirect == null || redirect.isBlank()) redirect = "http://localhost:4200/";
+                            res.sendRedirect(redirect);
+                        })
+                        .permitAll()
+                )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
         return http.build();
+    }
+
+    @Bean
+    public LogoutSuccessHandler logoutSuccessHandler() {
+        return (request, response, authentication) -> {
+            String redirect = request.getParameter("post_logout_redirect_uri");
+            if (redirect == null || redirect.isBlank()) {
+                redirect = "http://localhost:4200/";
+            }
+            response.sendRedirect(redirect);
+        };
     }
 
     @Bean
