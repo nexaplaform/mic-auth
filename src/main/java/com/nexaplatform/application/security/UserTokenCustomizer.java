@@ -43,7 +43,7 @@ public class UserTokenCustomizer {
                 List<String> roles = principal.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
                 List<String> groups = getGetGroups(user.getGroups());
                 context.getClaims().claim("id", user.getId());
-                context.getClaims().claim("fistName", user.getFirstName());
+                context.getClaims().claim("firstName", user.getFirstName());
                 context.getClaims().claim("lastName", user.getLastName());
                 context.getClaims().claim("fullName", user.getFirstName() + " " + user.getLastName());
                 context.getClaims().claim("roles", roles);
